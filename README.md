@@ -1,1 +1,51 @@
-# SWE_SportsTrainingApp
+# Sports Tracker
+
+## Prerequisites
+- **Node.js**
+- **npm** (comes with Node.js)
+
+### First‑time Node.js setup
+1. Download and install **Node.js LTS** from https://nodejs.org/
+2. Verify installation:
+   ```sh
+   node -v
+   npm -v
+   ```
+
+## Getting started
+1. Install dependencies:
+   ```sh
+   npm install
+   ```
+2. Start the dev server:
+   ```sh
+   npm run dev
+   ```
+3. Open the app:
+   - Vite will print a local URL in the terminal (usually http://localhost:5173)
+
+## Available scripts
+- `npm run dev` — start the dev server
+- `npm run build` — create a production build
+- `npm run preview` — preview the production build
+- `npm run lint` — run ESLint
+
+## Project structure
+```
+sports_tracker/
+  public/
+  src/
+    App.jsx
+    App.css
+    main.jsx
+    index.css
+```
+
+## Notes
+- Edit `src/App.jsx` to change the UI.
+- Global styles live in `src/index.css`.
+- Component styles live in `src/App.css`.
+
+## Troubleshooting
+- If `npm install` fails, delete `node_modules` and `package-lock.json`, then run `npm install` again.
+- Ensure Node.js is installed and `node -v` works in your terminal.
