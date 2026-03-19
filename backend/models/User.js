@@ -1,5 +1,5 @@
 // Import mongoose to define schema and model
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 
 const userSchema = new mongoose.Schema(
@@ -28,4 +28,4 @@ const userSchema = new mongoose.Schema(
 
 
 //Export the model so it can be used in routes/controllers
-module.exports = mongoose.model("User", userSchema);
+export default mongoose.model("User", userSchema);
