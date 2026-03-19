@@ -22,7 +22,7 @@ function Login() {
       })
       const data = await res.json()
       if (data.message === 'Login successful') {
-        navigate('/dashboard')
+        navigate('/questionnaire')
       } else {
         setError(data.message)
       }
