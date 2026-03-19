@@ -15,7 +15,7 @@ router.post("/signUP", async (req, res) => {
         return res.json({message: "Username already exists"});
     }
     else{ //if not, create new user
-        await new User({username, password}).save();
+        await new User({username, email, password}).save();
         res.json({message: "New user created"});
     }
   } 
@@ -35,7 +35,7 @@ router.post("/login", async (req, res) => {
     if(!potentialUser){//if user doesnt exist
         return res.json({message: "User doesn't exist"});
     }
-    if(potentialUser !== password){ //if password is incorrect
+    if(potentialUser.password !== password){ //if password is incorrect
         return res.json({message: "Password incorrect"});
     }
     else{ //log in successful
