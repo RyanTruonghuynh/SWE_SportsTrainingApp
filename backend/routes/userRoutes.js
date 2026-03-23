@@ -3,6 +3,13 @@ import User from "../models/User.js";
 
 const router = express.Router();
 
+//Validates Email
+const validEmail = (email) => {
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailValid.test(email);
+};
+
+
 //signing up
 router.post("/signUP", async (req, res) => {
   try {
@@ -10,14 +17,22 @@ router.post("/signUP", async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
 
+    if(!validEmail(email)) {
+        return res.status(400).json({ message: "Invalid email format" });
+    }
+
     const potentialUser = await User.findOne({username}); //searches MongoDB to see if user exists
     if(potentialUser){
         return res.json({message: "Username already exists"});
     }
-    else{ //if not, create new user
-        await new User({username, email, password}).save();
-        res.json({message: "New user created"});
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(409).json({ message: "Email already exists" });
     }
+     //if not, create new user
+    await new User({username, email, password}).save();
+    res.json({message: "New user created"});
+    
   } 
   catch (error) { //error handling
     res.json({ error: error.message });
