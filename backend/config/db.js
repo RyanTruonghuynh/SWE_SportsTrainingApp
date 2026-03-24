@@ -1,5 +1,7 @@
 // Import mongoose to interact with MongoDB
 import mongoose from "mongoose";
+import { setServers } from "node:dns/promises";
+setServers(["1.1.1.1", "8.8.8.8"]); // force public DNS to bypass ISP SRV blocking
 
 //establish connection to MongoDB
 const connectDB = async () => {
