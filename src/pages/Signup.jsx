@@ -37,38 +37,52 @@ function Signup() {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h2 style={styles.title}>Sign Up</h2>
+        <h2 style={styles.title}>Train<span style={styles.titleAccent}>r</span></h2>
         <form onSubmit={handleSubmit} style={styles.form}>
-          <input
-            className="form-input"
-            name="username"
-            placeholder="Username"
-            value={form.username}
-            onChange={handleChange}
-            required
-          />
-          <input
-            className="form-input"
-            name="email"
-            type="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
-          <input
-            className="form-input"
-            name="password"
-            type="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
+          <div style={styles.fieldGroup}>
+            <label style={styles.label}>Username</label>
+            <input
+              className="form-input"
+              name="username"
+              placeholder="Choose a username"
+              value={form.username}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div style={styles.fieldGroup}>
+            <label style={styles.label}>Email</label>
+            <input
+              className="form-input"
+              name="email"
+              type="email"
+              placeholder="Enter your email"
+              value={form.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div style={styles.fieldGroup}>
+            <label style={styles.label}>Password</label>
+            <input
+              className="form-input"
+              name="password"
+              type="password"
+              placeholder="Create a password"
+              value={form.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
           {error && <p style={styles.error}>{error}</p>}
           {success && <p style={styles.success}>{success}</p>}
-          <button className="btn-primary" type="submit" style={styles.btn}>Sign Up</button>
+
+          <button className="btn-primary" type="submit" style={styles.btn}>
+            Sign Up
+          </button>
         </form>
+
         <p style={styles.switchText}>
           Already have an account?{' '}
           <span style={styles.link} onClick={() => navigate('/login')}>Sign In</span>
@@ -83,28 +97,57 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    height: '100vh',
-    backgroundColor: colors.surface,
+    minHeight: '100vh',
+    width: '100%',
+    backgroundColor: colors.pageBg,
+    padding: '20px',
   },
   card: {
-    backgroundColor: colors.background,
-    padding: '40px 36px',
+    backgroundColor: colors.cardBg,
+    border: `1px solid ${colors.cardBorder}`,
     borderRadius: '10px',
-    boxShadow: '0 2px 12px rgba(48,155,193,0.12)',
-    width: '300px',
+    padding: '40px 36px',
+    width: '100%',
+    maxWidth: '380px',
     display: 'flex',
     flexDirection: 'column',
     gap: '16px',
+    boxShadow: colors.cardShadow,
   },
   title: {
-    color: colors.primary,
+    color: colors.textPrimary,
     margin: 0,
     textAlign: 'center',
+    fontSize: '1.6rem',
+    fontWeight: '700',
+  },
+  titleAccent: {
+    color: colors.primary,
   },
   form: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '10px',
+    gap: '12px',
+  },
+  fieldGroup: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+  },
+  label: {
+    fontSize: '13px',
+    fontWeight: '500',
+    color: colors.textLabel,
+  },
+  error: {
+    color: colors.errorText,
+    margin: 0,
+    fontSize: '14px',
+  },
+  success: {
+    color: colors.successText,
+    margin: 0,
+    fontSize: '14px',
   },
   btn: {
     padding: '11px 0',
@@ -112,19 +155,9 @@ const styles = {
     width: '100%',
     marginTop: '4px',
   },
-  error: {
-    color: colors.error,
-    margin: 0,
-    fontSize: '14px',
-  },
-  success: {
-    color: colors.primary,
-    margin: 0,
-    fontSize: '14px',
-  },
   switchText: {
     textAlign: 'center',
-    color: colors.textLight,
+    color: colors.textMuted,
     fontSize: '14px',
     margin: 0,
   },

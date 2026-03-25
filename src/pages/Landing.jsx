@@ -6,7 +6,9 @@ function Landing() {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>Trainr</h1>
+      <h1 style={styles.title}>
+        Train<span style={styles.titleAccent}>r</span>
+      </h1>
       <p style={styles.subtitle}>Track your workouts and reach your goals.</p>
       <div style={styles.buttons}>
         <button className="btn-primary" style={styles.btn} onClick={() => navigate('/login')}>Sign In</button>
@@ -22,18 +24,25 @@ const styles = {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    height: '100vh',
+    minHeight: '100vh',
+    width: '100%',
+    backgroundColor: colors.pageBg,
     gap: '16px',
-    backgroundColor: colors.surface,
   },
   title: {
-    fontSize: '3rem',
-    color: colors.primary,
+    fontSize: '3.5rem',
+    fontWeight: '800',
+    color: colors.textPrimary,
     margin: 0,
+    letterSpacing: '-2px',
+  },
+  titleAccent: {
+    color: colors.primary,
   },
   subtitle: {
-    color: colors.textLight,
+    color: colors.textMuted,
     margin: 0,
+    fontSize: '1rem',
   },
   buttons: {
     display: 'flex',
