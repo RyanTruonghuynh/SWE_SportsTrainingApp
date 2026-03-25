@@ -1,6 +1,6 @@
-import { colors } from "../styles/theme";
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { colors } from '../styles/theme'
 import "../App.css";
 
 function Questionnaire() {
@@ -28,7 +28,7 @@ function Questionnaire() {
 
     return(
         <div style={styles.container}>
-            <h1 style={styles.title}>Trainr</h1>
+            <h1 style={styles.title}>Train<span style={styles.titleAccent}>r</span></h1>
             <div style={styles.card}>
                 <h2 style={styles.subtitle}>Select Your Sport</h2>
                 <div style={styles.spacing}>
@@ -140,36 +140,42 @@ const styles = {
         alignItems: 'center',
         justifyContent: 'flex-start',
         minHeight: '100vh',
-        backgroundColor: colors.surface,
+        backgroundColor: colors.pageBg,
         width: '100%',
-        paddingTop: '20px',      
+        paddingTop: '32px',
+        paddingBottom: '40px',
     },
     title: {
-        color: colors.primary,
-        fontSize: '48px',
-        fontWeight: 'bold',
+        color: colors.textPrimary,
+        fontSize: '2.4rem',
+        fontWeight: '700',
         margin: 0,
-        marginBottom: '20px',
+        marginBottom: '24px',
         textAlign: 'center',
-        width: '100%',
+    },
+    titleAccent: {
+        color: colors.primary,
     },
     card: {
-        backgroundColor: colors.background,
-        padding: '40px 36px',
+        backgroundColor: colors.cardBg,
+        border: `1px solid ${colors.cardBorder}`,
         borderRadius: '10px',
+        padding: '40px 36px',
         width: '600px',
+        maxWidth: '95vw',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: '20px', 
+        gap: '20px',
+        boxShadow: colors.cardShadow,
     },
     subtitle: {
-        color: colors.text,
+        color: colors.textPrimary,
         fontSize: '18px',
         margin: 0,
-        marginBottom: '10px',        
+        marginBottom: '10px',
         textAlign: 'center',
-        fontWeight: '500',
+        fontWeight: '600',
         width: '100%',
     },
     spacing: {
@@ -179,31 +185,33 @@ const styles = {
         width: '100%',
     },
     label: {
-        color: colors.textLight,
+        color: colors.textLabel,
         fontWeight: '500',
-        fontSize: '14px',
+        fontSize: '13px',
         textAlign: 'left',
-    }, 
+    },
     select: {
         width: '100%',
         padding: '12px',
-        border: '2px solid #C5D8D7', 
-        borderRadius: '8px',
+        border: `1.5px solid ${colors.inputBorder}`,
+        borderRadius: '10px',
         fontSize: '15px',
-        color: colors.text,
-        backgroundColor: colors.background,
+        color: colors.textPrimary,
+        backgroundColor: colors.inputBgSolid,
         cursor: 'pointer',
-        transition: 'all 0.3s ease'
-    },   
-    selectionBox: {                  
-        padding: '12px',
-        backgroundColor: '#E4EEEE', 
-        borderRadius: '6px',
-        color: colors.text,
+        transition: 'border-color 0.2s ease',
+        outline: 'none',
+    },
+    selectionBox: {
+        padding: '14px 16px',
+        background: colors.summaryBg,
+        border: `1px solid ${colors.summaryBorder}`,
+        borderRadius: '12px',
+        color: colors.textMuted,
         textAlign: 'center',
         fontSize: '14px',
         width: '100%',
-    },  
+    },
     sliderContainer: {
         width: '100%',
         display: 'flex',
@@ -217,16 +225,17 @@ const styles = {
         width: '100%',
     },
     sliderLabel: {
-        color: colors.text,
+        color: colors.textPrimary,
         fontWeight: '500',
         fontSize: '15px',
     },
     sliderValue: {
         color: colors.primary,
-        fontWeight: 'bold',
-        fontSize: '16px',
-        backgroundColor: '#E4EEEE',
-        padding: '4px 10px',
+        fontWeight: '700',
+        fontSize: '14px',
+        background: colors.sliderBadgeBg,
+        border: `1px solid ${colors.sliderBadgeBorder}`,
+        padding: '3px 10px',
         borderRadius: '20px',
     },
     slider: {
@@ -239,7 +248,7 @@ const styles = {
     sliderMinMax: {
         display: 'flex',
         justifyContent: 'space-between',
-        color: colors.primary,
+        color: colors.textMuted,
         fontSize: '12px',
         width: '100%',
     },
@@ -250,41 +259,41 @@ const styles = {
         gap: '8px',
     },
     ageLabel: {
-        color: colors.text,
+        color: colors.textPrimary,
         fontWeight: '500',
         fontSize: '15px',
     },
     ageInput: {
         width: '100%',
         padding: '12px',
-        border: '2px solid #C5D8D7',
-        borderRadius: '8px',
+        border: `1.5px solid ${colors.inputBorder}`,
+        borderRadius: '10px',
         fontSize: '15px',
-        color: colors.text,
-        backgroundColor: colors.background,
+        color: colors.textPrimary,
+        backgroundColor: colors.inputBgSolid,
         outline: 'none',
     },
-
     ageMessage: {
-        color: colors.textLight,
+        color: colors.textMuted,
         fontSize: '12px',
         marginTop: '4px',
     },
     buttonContainer: {
         width: '100%',
         display: 'flex',
-        justifyContent: 'flex-end', 
+        justifyContent: 'flex-end',
         marginTop: '20px',
     },
     saveButton: {
         backgroundColor: colors.primary,
         color: 'white',
         border: 'none',
-        borderRadius: '8px',
-        padding: '14px 28px',
-        fontSize: '16px',
+        borderRadius: '10px',
+        padding: '13px 28px',
+        fontSize: '15px',
         fontWeight: '600',
         cursor: 'pointer',
+        transition: 'background-color 0.2s ease, transform 0.15s ease',
     },
 }
 
