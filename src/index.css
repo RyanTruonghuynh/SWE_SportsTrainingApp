@@ -1,56 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Outfit', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #333333;
-  background-color: #ffffff;
+  color: #F0F4F8;
+  background-color: #0A1628;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background-color: #0A1628;
 }
 
+/* Buttons */
 .btn-primary {
   background-color: #309BC1;
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: background-color 0.2s ease, transform 0.15s ease;
 }
 .btn-primary:hover {
   background-color: #2780A3;
+  transform: translateY(-1px);
+}
+.btn-primary:active {
+  transform: translateY(0);
 }
 
 .btn-secondary {
-  background-color: #E4EEEE;
+  background: rgba(255, 255, 255, 0.06);
   color: #309BC1;
-  border: 1px solid #C5D8D7;
-  border-radius: 6px;
+  border: 1.5px solid rgba(48, 155, 193, 0.4);
+  border-radius: 10px;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: background 0.2s ease, transform 0.15s ease;
 }
 .btn-secondary:hover {
-  background-color: #C5D8D7;
+  background: rgba(48, 155, 193, 0.1);
+  transform: translateY(-1px);
+}
+.btn-secondary:active {
+  transform: translateY(0);
 }
 
+/* Form Inputs */
 .form-input {
-  padding: 10px 12px;
+  padding: 13px 16px;
   font-size: 15px;
-  border: 1px solid #C5D8D7;
-  border-radius: 6px;
+  font-family: 'Outfit', sans-serif;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
   outline: none;
-  color: #333333;
-  background-color: #ffffff;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  color: #F0F4F8;
+  background: rgba(255, 255, 255, 0.07);
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  width: 100%;
+}
+.form-input::placeholder {
+  color: rgba(240, 244, 248, 0.4);
 }
 .form-input:focus {
   border-color: #309BC1;
-  box-shadow: 0 0 0 3px rgba(48, 155, 193, 0.15);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(48, 155, 193, 0.2);
 }
