@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { colors } from '../styles/theme'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001'
+
 function Login() {
   const navigate = useNavigate()
   const [form, setForm] = useState({ username: '', password: '' })
@@ -15,7 +17,7 @@ function Login() {
     e.preventDefault()
     setError('')
     try {
-      const res = await fetch('http://localhost:5000/auth/login', {
+      const res = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
