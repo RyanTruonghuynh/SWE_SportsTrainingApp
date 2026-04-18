@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { colors } from '../styles/theme'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001'
+
 function Signup() {
   const navigate = useNavigate()
   const [form, setForm] = useState({ username: '', email: '', password: '' })
@@ -17,7 +19,7 @@ function Signup() {
     setError('')
     setSuccess('')
     try {
-      const res = await fetch('http://localhost:5000/auth/signUP', {
+      const res = await fetch(`${API_URL}/auth/signUP`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),

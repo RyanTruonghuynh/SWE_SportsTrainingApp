@@ -1,6 +1,27 @@
 // Import mongoose to define schema and model
 import mongoose from "mongoose";
 
+const questionaireSchema = new mongoose.Schema({
+  sportType: {
+    type: String,
+    enum: ["racketsports", "soccer", "volleyball","football"],
+    required: true
+  },
+  experienceLevel: {
+    type: String,
+    enum: ["beginner", "intermediate", "advanced"],
+    required: true
+  },
+  daysPerWeek: {
+    type: Number,
+    required: true,
+    default: 1,
+  },
+  age: {
+    type: Number,
+    required: true,
+  }
+}, {_id:false});
 
 const userSchema = new mongoose.Schema(
   {
@@ -22,6 +43,8 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    questionaire:{
+      type: questionaireSchema,}  // embed the questionaire schema within the user schema
   },
   {timestamps: true}    // automatically adds createdAt & updatedAt
 );
