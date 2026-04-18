@@ -23,7 +23,7 @@ function Questionnaire() {
             frequency: workoutFreq,
             age: age
         })
-        navigate('/NextPage')
+        navigate('/statistics')
     }
 
     return(

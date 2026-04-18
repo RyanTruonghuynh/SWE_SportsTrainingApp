@@ -3,6 +3,9 @@ import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Questionnaire from './pages/Questionnaire'
+import Statistics from './pages/Statistics'
+
+
 
 
 function App() {
@@ -13,6 +16,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/questionnaire" element={<Questionnaire />} />
+        <Route path="/statistics" element={<Statistics/>} />
       </Routes>
     </BrowserRouter>
   )
