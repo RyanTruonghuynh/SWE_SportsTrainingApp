@@ -28,7 +28,7 @@ function Signup() {
       if (data.message === 'New user created') {
         localStorage.setItem('currentUser', JSON.stringify(data.user))
         setSuccess('Account created! Redirecting...')
-        setTimeout(() => navigate('/login'), 1500)
+        setTimeout(() => navigate('/questionnaire'), 1500)
       } else {
         setError(data.message)
       }

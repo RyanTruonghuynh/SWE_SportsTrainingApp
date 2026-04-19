@@ -1,0 +1,70 @@
+/* ── Accordion ───────────────────────────────────── */
+
+/* hover tint for clickable exercise rows */
+li.wr-ex-row:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.wr-chevron {
+  font-size: 18px;
+  line-height: 1;
+  color: rgba(240, 244, 248, 0.45);
+  transition: transform 0.25s ease;
+  display: inline-block;
+  width: 16px;
+  flex-shrink: 0;
+}
+.wr-chevron--open {
+  transform: rotate(90deg);
+  color: rgba(240, 244, 248, 0.85);
+}
+
+/* max-height transition: reliable expand/collapse for any number of exercises */
+.wr-body {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.28s ease;
+}
+.wr-body--open {
+  /* large enough for any exercise count */
+  max-height: 800px;
+}
+.wr-inner {
+  /* no overflow clip needed; parent handles it */
+}
+
+/* ── Panel scroll area ───────────────────────────── */
+.wr-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 640px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(48, 155, 193, 0.3) transparent;
+}
+.wr-panel-body::-webkit-scrollbar        { width: 4px; }
+.wr-panel-body::-webkit-scrollbar-track  { background: transparent; }
+.wr-panel-body::-webkit-scrollbar-thumb  {
+  background: rgba(48, 155, 193, 0.3);
+  border-radius: 2px;
+}
+
+/* ── Weekly page grid ────────────────────────────── */
+.wr-grid {
+  display: grid;
+  grid-template-columns: 1fr 240px 1fr;
+  gap: 20px;
+  align-items: start;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .wr-grid {
+    grid-template-columns: 1fr;
+  }
+  /* show chart between the two panels on mobile */
+  .wr-chart-col { order: -1; }
+}

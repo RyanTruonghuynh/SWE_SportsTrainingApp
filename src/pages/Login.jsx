@@ -25,7 +25,7 @@ function Login() {
       const data = await res.json()
       if (data.message === 'Login successful') {
         localStorage.setItem('currentUser', JSON.stringify(data.user))
-        navigate(data.user?.questionaire ? '/statistics' : '/questionnaire')
+        navigate(data.user?.questionaire ? '/weekly' : '/questionnaire')
       } else {
         setError(data.message)
       }

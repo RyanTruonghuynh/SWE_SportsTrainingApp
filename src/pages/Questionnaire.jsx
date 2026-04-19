@@ -14,18 +14,35 @@ function Questionnaire() {
     const [error, setError] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const storedUser = localStorage.getItem('currentUser')
-    const currentUser = storedUser ? JSON.parse(storedUser) : null
+    const [currentUser] = useState(() => {
+        const stored = localStorage.getItem('currentUser')
+        return stored ? JSON.parse(stored) : null
+    })
 
     useEffect(() => {
         if (!currentUser?.id) {
+            navigate('/login')
             return
         }
 
-        if (currentUser.questionaire) {
-            navigate('/statistics')
+        const verifyWithServer = async () => {
+            try {
+                const res = await fetch(`${API_URL}/auth/${currentUser.id}`)
+                if (!res.ok) return
+                const data = await res.json()
+                if (data.user?.questionaire) {
+                    localStorage.setItem('currentUser', JSON.stringify({ ...currentUser, ...data.user }))
+                    navigate('/weekly')
+                }
+            } catch {
+                if (currentUser.questionaire) {
+                    navigate('/weekly')
+                }
+            }
         }
-    }, [currentUser, navigate])
+
+        verifyWithServer()
+    }, [])
 
     const ageFunc = (e) => {
         const value = e.target.value
@@ -74,7 +91,7 @@ function Questionnaire() {
                 },
             }))
             localStorage.setItem('questionnaireResult', JSON.stringify(data))
-            navigate('/statistics', { state: data })
+            navigate('/weekly')
         } catch {
             setError('Could not connect to server.')
         } finally {

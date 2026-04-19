@@ -1,5 +1,6 @@
 import "dotenv/config";
 import process from "node:process";
+import { fileURLToPath } from "url";
 import connectDB from "../config/db.js";
 import WorkoutPlan from "../models/WorkoutPlan.js";
 import { exercises, skills } from "./seedData.js";
@@ -88,13 +89,20 @@ const seedPlans = sports.flatMap(({ sportType, title }) =>
   }))
 );
 
-try {
-  await connectDB();
+export async function seedWorkoutPlans() {
   await WorkoutPlan.deleteMany({});
   await WorkoutPlan.insertMany(seedPlans);
   console.log(`Seeded ${seedPlans.length} workout plans.`);
-  process.exit(0);
-} catch (error) {
-  console.error("Failed to seed workout plans:", error.message);
-  process.exit(1);
+}
+
+const isMain = process.argv[1] === fileURLToPath(import.meta.url);
+if (isMain) {
+  try {
+    await connectDB();
+    await seedWorkoutPlans();
+    process.exit(0);
+  } catch (error) {
+    console.error("Failed to seed workout plans:", error.message);
+    process.exit(1);
+  }
 }

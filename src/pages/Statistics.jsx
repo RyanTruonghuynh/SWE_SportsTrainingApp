@@ -39,9 +39,11 @@ function Statistics(){
                 return
             }
 
-            if (currentUser?.id && currentUser?.questionaire) {
+            // old localStorage format stored _id instead of id; fall back to handle both
+            const userId = currentUser?.id ?? currentUser?._id
+            if (userId && currentUser?.questionaire) {
                 try {
-                    const res = await fetch(`${API_URL}/progress/dashboard/${currentUser.id}`)
+                    const res = await fetch(`${API_URL}/progress/dashboard/${userId}`)
                     const data = await res.json()
 
                     if (!res.ok) {
@@ -94,11 +96,16 @@ function Statistics(){
 
     const baseLevel = planData ? levelMap[planData.experienceLevel] ?? 1 : 0
     const weeklyPlan = planData?.workoutPlan?.weeklyPlan ?? []
-    const exerciseList = weeklyPlan.flatMap((day) =>
-        (day.workoutItems ?? []).map((item) => `${day.day}: ${item.title}`)
+    const progressDays = planData?.progress?.days ?? []
+    const exerciseList = progressDays.flatMap((day) =>
+        (day.workoutItems ?? [])
+            .filter((item) => item.completed)
+            .map((item) => `${day.day}: ${item.title}`)
     )
-    const skillsList = weeklyPlan.flatMap((day) =>
-        (day.skillsItems ?? []).map((item) => `${day.day}: ${item.title}`)
+    const skillsList = progressDays.flatMap((day) =>
+        (day.skillItems ?? [])
+            .filter((item) => item.completed)
+            .map((item) => `${day.day}: ${item.title}`)
     )
 
     useEffect(() => {
@@ -107,9 +114,7 @@ function Statistics(){
             return
         }
 
-        if (planData?.workoutPlan?.weeklyPlan?.length) {
-            setProgress(100)
-        }
+        setProgress(0)
     }, [planData])
 
     useEffect(() => {
@@ -130,9 +135,12 @@ function Statistics(){
 
     return(
         <div style={styles.container}>
-            <h1 style={styles.title} onClick={()=> navigate('/')}>Train<span style={styles.titleAccent}>r</span></h1>
+            <h1 style={styles.title} onClick={()=> navigate('/weekly')}>Train<span style={styles.titleAccent}>r</span></h1>
             <div style={styles.card}>
-                <h2 style={styles.subtitle}>Your Statistics</h2>
+                <div style={styles.subtitleRow}>
+                    <h2 style={styles.subtitle}>Your Statistics</h2>
+                    <button style={styles.workoutBtn} onClick={() => navigate('/weekly')}>View Workout</button>
+                </div>
                 {planData && (
                     <div style={styles.summaryCard}>
                         <p style={styles.summaryText}><strong>Sport:</strong> {sportLabelMap[planData.sportType] ?? planData.sportType}</p>
@@ -219,14 +227,29 @@ const styles = {
     titleAccent: {
         color: colors.primary,
     },
+    subtitleRow: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%',
+        marginBottom: '20px',
+    },
     subtitle: {
         color: colors.textPrimary,
         fontSize: '18px',
         margin: 0,
-        marginBottom: '20px',
-        textAlign: 'center',
         fontWeight: '600',
-        width: '100%',
+    },
+    workoutBtn: {
+        backgroundColor: colors.primary,
+        color: '#fff',
+        border: 'none',
+        borderRadius: '8px',
+        padding: '8px 16px',
+        fontSize: '13px',
+        fontWeight: '600',
+        cursor: 'pointer',
+        flexShrink: 0,
     },
     summaryCard: {
         width: '100%',
