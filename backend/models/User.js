@@ -20,7 +20,16 @@ const questionaireSchema = new mongoose.Schema({
   age: {
     type: Number,
     required: true,
-  }
+  },
+  workoutPlan: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "WorkoutPlan",
+    required: true,
+  },
+  score: {
+    type: Number,
+    required: true,
+  },
 }, {_id:false});
 
 const userSchema = new mongoose.Schema(
@@ -44,7 +53,8 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     questionaire:{
-      type: questionaireSchema,}  // embed the questionaire schema within the user schema
+      type: questionaireSchema,
+    },  // embed the questionaire schema within the user schema
   },
   {timestamps: true}    // automatically adds createdAt & updatedAt
 );

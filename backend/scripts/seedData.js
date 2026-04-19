@@ -1,0 +1,140 @@
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import process from "node:process";
+import { pathToFileURL } from "node:url";
+import Exercise from "../models/Exercise.js";
+import Skill from "../models/Skill.js";
+
+dotenv.config();
+
+export const exercises = [
+    { name: "Beginner Bench Press", category: "strength", muscleGroups: ["chest", "arms", "shoulders"], sport: ["racketsports", "football"], difficultyLevel: "beginner", sets: 3, reps: 12, description: "Builds upper-body pressing strength for shoulder stability and powerful swings." },
+    { name: "Intermediate Dumbbell Bench Press", category: "strength", muscleGroups: ["chest", "arms", "shoulders"], sport: ["racketsports", "football"], difficultyLevel: "intermediate", sets: 4, reps: 8, description: "Builds upper-body pressing strength for shoulder stability and powerful swings." },
+    { name: "Advanced Barbell Bench Press", category: "strength", muscleGroups: ["chest", "arms", "shoulders"], sport: ["racketsports", "football"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Builds upper-body pressing strength for shoulder stability and powerful swings." },
+    { name: "Beginner Incline Dumbbell Press", category: "strength", muscleGroups: ["chest", "shoulders", "arms"], sport: ["racketsports", "volleyball"], difficultyLevel: "beginner", sets: 3, reps: 12, description: "Targets upper chest and shoulders for overhead and striking movements." },
+    { name: "Intermediate Alternating Incline Dumbbell Press", category: "strength", muscleGroups: ["chest", "shoulders", "arms"], sport: ["racketsports", "volleyball"], difficultyLevel: "intermediate", sets: 4, reps: 8, description: "Targets upper chest and shoulders for overhead and striking movements." },
+    { name: "Advanced Heavy Incline Dumbbell Press", category: "strength", muscleGroups: ["chest", "shoulders", "arms"], sport: ["racketsports", "volleyball"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Targets upper chest and shoulders for overhead and striking movements." },
+    { name: "Beginner Dumbbell Rows", category: "strength", muscleGroups: ["back", "arms", "shoulders"], sport: ["racketsports", "soccer", "football"], difficultyLevel: "beginner", sets: 3, reps: 12, description: "Strengthens back and pulling muscles for posture, balance, and control." },
+    { name: "Intermediate Single-Arm Dumbbell Rows", category: "strength", muscleGroups: ["back", "arms", "shoulders"], sport: ["racketsports", "soccer", "football"], difficultyLevel: "intermediate", sets: 4, reps: 8, description: "Strengthens back and pulling muscles for posture, balance, and control." },
+    { name: "Advanced Renegade Dumbbell Rows", category: "strength", muscleGroups: ["back", "arms", "shoulders"], sport: ["racketsports", "soccer", "football"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Strengthens back and pulling muscles for posture, balance, and control." },
+    { name: "Beginner Bulgarian Split Squat", category: "strength", muscleGroups: ["legs", "glutes", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "beginner", sets: 3, reps: 12, description: "Develops single-leg strength, hip control, and balance." },
+    { name: "Intermediate Weighted Bulgarian Split Squat", category: "strength", muscleGroups: ["legs", "glutes", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "intermediate", sets: 4, reps: 8, description: "Develops single-leg strength, hip control, and balance." },
+    { name: "Advanced Jump Bulgarian Split Squat", category: "strength", muscleGroups: ["legs", "glutes", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Develops single-leg strength, hip control, and balance." },
+    { name: "Beginner Step Ups", category: "strength", muscleGroups: ["legs", "glutes"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "beginner", sets: 3, reps: 12, description: "Builds lower-body power through a stable single-leg drive." },
+    { name: "Intermediate Lateral Step Ups", category: "strength", muscleGroups: ["legs", "glutes"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "intermediate", sets: 4, reps: 8, description: "Builds lower-body power through a stable single-leg drive." },
+    { name: "Advanced Explosive Step Ups", category: "strength", muscleGroups: ["legs", "glutes"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Builds lower-body power through a stable single-leg drive." },
+    { name: "Beginner Glute Bridges", category: "strength", muscleGroups: ["glutes", "legs", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "beginner", sets: 3, reps: 12, description: "Activates the glutes and posterior chain for sprinting and jumping." },
+    { name: "Intermediate Single-Leg Glute Bridges", category: "strength", muscleGroups: ["glutes", "legs", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "intermediate", sets: 4, reps: 8, description: "Activates the glutes and posterior chain for sprinting and jumping." },
+    { name: "Advanced Weighted Glute Bridges", category: "strength", muscleGroups: ["glutes", "legs", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Activates the glutes and posterior chain for sprinting and jumping." },
+    { name: "Beginner Side Plank", category: "strength", muscleGroups: ["core", "shoulders"], sport: ["racketsports", "soccer", "volleyball", "football"], difficultyLevel: "beginner", sets: 3, reps: 12, description: "Improves lateral core strength and shoulder stability." },
+    { name: "Intermediate Side Plank Hip Dips", category: "strength", muscleGroups: ["core", "shoulders"], sport: ["racketsports", "soccer", "volleyball", "football"], difficultyLevel: "intermediate", sets: 4, reps: 8, description: "Improves lateral core strength and shoulder stability." },
+    { name: "Advanced Star Side Plank", category: "strength", muscleGroups: ["core", "shoulders"], sport: ["racketsports", "soccer", "volleyball", "football"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Improves lateral core strength and shoulder stability." },
+    { name: "Beginner Russian Twists", category: "strength", muscleGroups: ["core"], sport: ["racketsports", "soccer", "volleyball", "football"], difficultyLevel: "beginner", sets: 3, reps: 12, description: "Trains rotational core control for swings, throws, and kicks." },
+    { name: "Intermediate Weighted Russian Twists", category: "strength", muscleGroups: ["core"], sport: ["racketsports", "soccer", "volleyball", "football"], difficultyLevel: "intermediate", sets: 4, reps: 8, description: "Trains rotational core control for swings, throws, and kicks." },
+    { name: "Advanced Medicine Ball Russian Twists", category: "strength", muscleGroups: ["core"], sport: ["racketsports", "soccer", "volleyball", "football"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Trains rotational core control for swings, throws, and kicks." },
+    { name: "Beginner Wall Sits", category: "endurance", muscleGroups: ["legs", "glutes", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "beginner", sets: 3, reps: 12, description: "Builds lower-body endurance for staying low and stable." },
+    { name: "Intermediate Wall Sit Marches", category: "endurance", muscleGroups: ["legs", "glutes", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "intermediate", sets: 4, reps: 8, description: "Builds lower-body endurance for staying low and stable." },
+    { name: "Advanced Weighted Wall Sits", category: "endurance", muscleGroups: ["legs", "glutes", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Builds lower-body endurance for staying low and stable." },
+    { name: "Beginner Box Jumps", category: "agility", muscleGroups: ["legs", "glutes", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "beginner", sets: 3, reps: 12, description: "Develops explosive leg power and landing control." },
+    { name: "Intermediate Lateral Box Jumps", category: "agility", muscleGroups: ["legs", "glutes", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "intermediate", sets: 4, reps: 8, description: "Develops explosive leg power and landing control." },
+    { name: "Advanced Depth Box Jumps", category: "agility", muscleGroups: ["legs", "glutes", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Develops explosive leg power and landing control." },
+    { name: "Beginner Jump Rope", category: "endurance", muscleGroups: ["legs", "core", "shoulders"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "beginner", sets: 3, reps: 12, description: "Improves rhythm, conditioning, and quick foot contacts." },
+    { name: "Intermediate High-Knee Jump Rope", category: "endurance", muscleGroups: ["legs", "core", "shoulders"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "intermediate", sets: 4, reps: 8, description: "Improves rhythm, conditioning, and quick foot contacts." },
+    { name: "Advanced Double-Under Jump Rope", category: "endurance", muscleGroups: ["legs", "core", "shoulders"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Improves rhythm, conditioning, and quick foot contacts." },
+    { name: "Beginner Ladder Footwork", category: "agility", muscleGroups: ["legs", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "beginner", sets: 3, reps: 12, description: "Trains fast feet, coordination, and body control." },
+    { name: "Intermediate Ickey Shuffle Ladder Footwork", category: "agility", muscleGroups: ["legs", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "intermediate", sets: 4, reps: 8, description: "Trains fast feet, coordination, and body control." },
+    { name: "Advanced In-Out Ladder Footwork", category: "agility", muscleGroups: ["legs", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Trains fast feet, coordination, and body control." },
+    { name: "Beginner Cone Shuffle", category: "agility", muscleGroups: ["legs", "glutes", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "beginner", sets: 3, reps: 12, description: "Improves lateral movement, deceleration, and recovery." },
+    { name: "Intermediate T-Drill Cone Shuffle", category: "agility", muscleGroups: ["legs", "glutes", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "intermediate", sets: 4, reps: 8, description: "Improves lateral movement, deceleration, and recovery." },
+    { name: "Advanced Reactive Cone Shuffle", category: "agility", muscleGroups: ["legs", "glutes", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Improves lateral movement, deceleration, and recovery." },
+    { name: "Beginner Push Ups", category: "strength", muscleGroups: ["chest", "arms", "shoulders", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "beginner", sets: 3, reps: 12, description: "Builds upper-body and core strength using bodyweight." },
+    { name: "Intermediate Decline Push Ups", category: "strength", muscleGroups: ["chest", "arms", "shoulders", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "intermediate", sets: 4, reps: 8, description: "Builds upper-body and core strength using bodyweight." },
+    { name: "Advanced Plyometric Push Ups", category: "strength", muscleGroups: ["chest", "arms", "shoulders", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Builds upper-body and core strength using bodyweight." },
+    { name: "Beginner Pull Ups", category: "strength", muscleGroups: ["back", "arms", "shoulders"], sport: ["racketsports", "football", "volleyball"], difficultyLevel: "beginner", sets: 3, reps: 12, description: "Strengthens the back, arms, and shoulders for pulling power." },
+    { name: "Intermediate Assisted Tempo Pull Ups", category: "strength", muscleGroups: ["back", "arms", "shoulders"], sport: ["racketsports", "football", "volleyball"], difficultyLevel: "intermediate", sets: 4, reps: 8, description: "Strengthens the back, arms, and shoulders for pulling power." },
+    { name: "Advanced Weighted Pull Ups", category: "strength", muscleGroups: ["back", "arms", "shoulders"], sport: ["racketsports", "football", "volleyball"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Strengthens the back, arms, and shoulders for pulling power." },
+    { name: "Beginner Goblet Squats", category: "strength", muscleGroups: ["legs", "glutes", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "beginner", sets: 3, reps: 12, description: "Builds squat mechanics, leg strength, and trunk control." },
+    { name: "Intermediate Tempo Goblet Squats", category: "strength", muscleGroups: ["legs", "glutes", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "intermediate", sets: 4, reps: 8, description: "Builds squat mechanics, leg strength, and trunk control." },
+    { name: "Advanced Jump Goblet Squats", category: "strength", muscleGroups: ["legs", "glutes", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Builds squat mechanics, leg strength, and trunk control." },
+    { name: "Beginner Romanian Deadlifts", category: "strength", muscleGroups: ["back", "glutes", "legs"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "beginner", sets: 3, reps: 12, description: "Strengthens the hamstrings, glutes, and back for hip power." },
+    { name: "Intermediate Single-Leg Romanian Deadlifts", category: "strength", muscleGroups: ["back", "glutes", "legs"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "intermediate", sets: 4, reps: 8, description: "Strengthens the hamstrings, glutes, and back for hip power." },
+    { name: "Advanced Dumbbell Romanian Deadlifts", category: "strength", muscleGroups: ["back", "glutes", "legs"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Strengthens the hamstrings, glutes, and back for hip power." },
+    { name: "Beginner Shoulder Press", category: "strength", muscleGroups: ["shoulders", "arms", "core"], sport: ["racketsports", "volleyball", "football"], difficultyLevel: "beginner", sets: 3, reps: 12, description: "Builds overhead strength and shoulder control." },
+    { name: "Intermediate Alternating Shoulder Press", category: "strength", muscleGroups: ["shoulders", "arms", "core"], sport: ["racketsports", "volleyball", "football"], difficultyLevel: "intermediate", sets: 4, reps: 8, description: "Builds overhead strength and shoulder control." },
+    { name: "Advanced Push Press", category: "strength", muscleGroups: ["shoulders", "arms", "core"], sport: ["racketsports", "volleyball", "football"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Builds overhead strength and shoulder control." },
+    { name: "Beginner Hip Flexor Stretch", category: "flexibility", muscleGroups: ["legs", "glutes", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "beginner", sets: 3, reps: 12, description: "Improves hip mobility for strides, lunges, and lower-body movement." },
+    { name: "Intermediate Kneeling Hip Flexor Stretch", category: "flexibility", muscleGroups: ["legs", "glutes", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "intermediate", sets: 4, reps: 8, description: "Improves hip mobility for strides, lunges, and lower-body movement." },
+    { name: "Advanced Couch Hip Flexor Stretch", category: "flexibility", muscleGroups: ["legs", "glutes", "core"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Improves hip mobility for strides, lunges, and lower-body movement." },
+    { name: "Beginner Hamstring Stretch", category: "flexibility", muscleGroups: ["legs", "glutes"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "beginner", sets: 3, reps: 12, description: "Supports posterior-chain mobility for sprinting, kicking, and low positions." },
+    { name: "Intermediate Seated Hamstring Stretch", category: "flexibility", muscleGroups: ["legs", "glutes"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "intermediate", sets: 4, reps: 8, description: "Supports posterior-chain mobility for sprinting, kicking, and low positions." },
+    { name: "Advanced Standing Hamstring Stretch", category: "flexibility", muscleGroups: ["legs", "glutes"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Supports posterior-chain mobility for sprinting, kicking, and low positions." },
+];
+
+export const skills = [
+    { name: "Beginner Dribbling Control", category: "technique", sport: ["soccer"], difficultyLevel: "beginner", sets: 3, reps: 3, description: "Keeps the ball close while changing speed and direction." },
+    { name: "Intermediate Dribbling Control", category: "technique", sport: ["soccer"], difficultyLevel: "intermediate", sets: 4, reps: 4, description: "Keeps the ball close while changing speed and direction." },
+    { name: "Advanced Dribbling Control", category: "technique", sport: ["soccer"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Keeps the ball close while changing speed and direction." },
+    { name: "Beginner Dribbling Direction Changes", category: "technique", sport: ["soccer"], difficultyLevel: "beginner", sets: 3, reps: 3, description: "Uses controlled touches to cut, turn, and escape defenders." },
+    { name: "Intermediate Dribbling Direction Changes", category: "technique", sport: ["soccer"], difficultyLevel: "intermediate", sets: 4, reps: 4, description: "Uses controlled touches to cut, turn, and escape defenders." },
+    { name: "Advanced Dribbling Direction Changes", category: "technique", sport: ["soccer"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Uses controlled touches to cut, turn, and escape defenders." },
+    { name: "Beginner Dribbling Under Pressure", category: "tactical", sport: ["soccer"], difficultyLevel: "beginner", sets: 3, reps: 3, description: "Practices shielding, scanning, and keeping possession under pressure." },
+    { name: "Intermediate Dribbling Under Pressure", category: "tactical", sport: ["soccer"], difficultyLevel: "intermediate", sets: 4, reps: 4, description: "Practices shielding, scanning, and keeping possession under pressure." },
+    { name: "Advanced Dribbling Under Pressure", category: "tactical", sport: ["soccer"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Practices shielding, scanning, and keeping possession under pressure." },
+    { name: "Beginner Backhand Shadow Swings", category: "technique", sport: ["racketsports"], difficultyLevel: "beginner", sets: 3, reps: 3, description: "Grooves the backhand path while focusing on balance and recovery." },
+    { name: "Intermediate Backhand Shadow Swings", category: "technique", sport: ["racketsports"], difficultyLevel: "intermediate", sets: 4, reps: 4, description: "Grooves the backhand path while focusing on balance and recovery." },
+    { name: "Advanced Backhand Shadow Swings", category: "technique", sport: ["racketsports"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Grooves the backhand path while focusing on balance and recovery." },
+    { name: "Beginner Forehand Shadow Swings", category: "technique", sport: ["racketsports"], difficultyLevel: "beginner", sets: 3, reps: 3, description: "Rehearses forehand mechanics with rotation and follow-through." },
+    { name: "Intermediate Forehand Shadow Swings", category: "technique", sport: ["racketsports"], difficultyLevel: "intermediate", sets: 4, reps: 4, description: "Rehearses forehand mechanics with rotation and follow-through." },
+    { name: "Advanced Forehand Shadow Swings", category: "technique", sport: ["racketsports"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Rehearses forehand mechanics with rotation and follow-through." },
+    { name: "Beginner Serve Follow Through", category: "technique", sport: ["racketsports", "volleyball"], difficultyLevel: "beginner", sets: 3, reps: 3, description: "Builds a smooth finishing path after contact for control and power." },
+    { name: "Intermediate Serve Follow Through", category: "technique", sport: ["racketsports", "volleyball"], difficultyLevel: "intermediate", sets: 4, reps: 4, description: "Builds a smooth finishing path after contact for control and power." },
+    { name: "Advanced Serve Follow Through", category: "technique", sport: ["racketsports", "volleyball"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Builds a smooth finishing path after contact for control and power." },
+    { name: "Beginner Hand-Eye Toss Drill", category: "coordination", sport: ["racketsports", "volleyball"], difficultyLevel: "beginner", sets: 3, reps: 3, description: "Develops tracking, timing, and hand-eye coordination." },
+    { name: "Intermediate Hand-Eye Toss Drill", category: "coordination", sport: ["racketsports", "volleyball"], difficultyLevel: "intermediate", sets: 4, reps: 4, description: "Develops tracking, timing, and hand-eye coordination." },
+    { name: "Advanced Hand-Eye Toss Drill", category: "coordination", sport: ["racketsports", "volleyball"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Develops tracking, timing, and hand-eye coordination." },
+    { name: "Beginner Split Step Timing", category: "footwork", sport: ["racketsports"], difficultyLevel: "beginner", sets: 3, reps: 3, description: "Practices landing in a ready stance as the opponent makes contact." },
+    { name: "Intermediate Split Step Timing", category: "footwork", sport: ["racketsports"], difficultyLevel: "intermediate", sets: 4, reps: 4, description: "Practices landing in a ready stance as the opponent makes contact." },
+    { name: "Advanced Split Step Timing", category: "footwork", sport: ["racketsports"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Practices landing in a ready stance as the opponent makes contact." },
+    { name: "Beginner Recovery Footwork", category: "footwork", sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "beginner", sets: 3, reps: 3, description: "Returns athletes to a balanced ready position after each action." },
+    { name: "Intermediate Recovery Footwork", category: "footwork", sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "intermediate", sets: 4, reps: 4, description: "Returns athletes to a balanced ready position after each action." },
+    { name: "Advanced Recovery Footwork", category: "footwork", sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Returns athletes to a balanced ready position after each action." },
+    { name: "Beginner Target Passing", category: "technique", sport: ["soccer", "football", "volleyball"], difficultyLevel: "beginner", sets: 3, reps: 3, description: "Builds passing accuracy toward a specific target." },
+    { name: "Intermediate Target Passing", category: "technique", sport: ["soccer", "football", "volleyball"], difficultyLevel: "intermediate", sets: 4, reps: 4, description: "Builds passing accuracy toward a specific target." },
+    { name: "Advanced Target Passing", category: "technique", sport: ["soccer", "football", "volleyball"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Builds passing accuracy toward a specific target." },
+    { name: "Beginner First Touch Control", category: "technique", sport: ["soccer"], difficultyLevel: "beginner", sets: 3, reps: 3, description: "Improves the first contact on the ball for the next action." },
+    { name: "Intermediate First Touch Control", category: "technique", sport: ["soccer"], difficultyLevel: "intermediate", sets: 4, reps: 4, description: "Improves the first contact on the ball for the next action." },
+    { name: "Advanced First Touch Control", category: "technique", sport: ["soccer"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Improves the first contact on the ball for the next action." },
+    { name: "Beginner Defensive Positioning", category: "tactical", sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "beginner", sets: 3, reps: 3, description: "Teaches spacing, stance, and angles for better defending." },
+    { name: "Intermediate Defensive Positioning", category: "tactical", sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "intermediate", sets: 4, reps: 4, description: "Teaches spacing, stance, and angles for better defending." },
+    { name: "Advanced Defensive Positioning", category: "tactical", sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Teaches spacing, stance, and angles for better defending." },
+    { name: "Beginner Serve Placement", category: "tactical", sport: ["racketsports", "volleyball"], difficultyLevel: "beginner", sets: 3, reps: 3, description: "Practices choosing and hitting service targets." },
+    { name: "Intermediate Serve Placement", category: "tactical", sport: ["racketsports", "volleyball"], difficultyLevel: "intermediate", sets: 4, reps: 4, description: "Practices choosing and hitting service targets." },
+    { name: "Advanced Serve Placement", category: "tactical", sport: ["racketsports", "volleyball"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Practices choosing and hitting service targets." },
+    { name: "Beginner Ready Position Reset", category: "footwork", sport: ["racketsports", "soccer", "volleyball", "football"], difficultyLevel: "beginner", sets: 3, reps: 3, description: "Practices returning to an athletic stance after each movement." },
+];
+
+export const seedData = async () => {
+    try {
+        await mongoose.connect(process.env.MONGO_URI);
+
+        await Exercise.deleteMany({});
+        await Skill.deleteMany({});
+
+        await Exercise.insertMany(exercises);
+        await Skill.insertMany(skills);
+
+        console.log("Seeded data inserted successfully.");
+        process.exit(0);
+    } catch (error) {
+        console.error("Error seeding data:", error);
+    } finally {
+        await mongoose.connection.close();
+    }
+};
+
+const shouldRunDirectly =
+  process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (shouldRunDirectly) {
+  seedData();
+}

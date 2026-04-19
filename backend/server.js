@@ -3,6 +3,7 @@ import process from "node:process";
 import express from "express";
 import authRoutes from "./routes/userRoutes.js";
 import assessmentRoutes from "./routes/assessmentRoutes.js";
+import progressRoutes from "./routes/progressRoutes.js";
 import connectDB from "./config/db.js";
 import cors from "cors";
 
@@ -13,6 +14,7 @@ app.use(cors()); //allows frontend and backend to communicate
 app.use(express.json()); //allows JSON parsing
 app.use("/auth",authRoutes);
 app.use("/assessment", assessmentRoutes);
+app.use("/progress", progressRoutes);
 
 await connectDB(); //connect to MongoDB
 

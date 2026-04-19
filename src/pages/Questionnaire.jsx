@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { colors } from '../styles/theme'
 import "../App.css";
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001'
 
 function Questionnaire() {
     const navigate = useNavigate() 
@@ -11,6 +13,19 @@ function Questionnaire() {
     const [age, setAge] = useState('')
     const [error, setError] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
+
+    const storedUser = localStorage.getItem('currentUser')
+    const currentUser = storedUser ? JSON.parse(storedUser) : null
+
+    useEffect(() => {
+        if (!currentUser?.id) {
+            return
+        }
+
+        if (currentUser.questionaire) {
+            navigate('/statistics')
+        }
+    }, [currentUser, navigate])
 
     const ageFunc = (e) => {
         const value = e.target.value
@@ -23,10 +38,16 @@ function Questionnaire() {
         setIsSubmitting(true)
 
         try {
-            const res = await fetch('http://localhost:5001/assessment/questionnaire', {
+            if (!currentUser?.id) {
+                setError('Please log in again before submitting the questionnaire.')
+                return
+            }
+
+            const res = await fetch(`${API_URL}/assessment/questionnaire`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    userId: currentUser.id,
                     sport: sportSelected,
                     yearsExperience,
                     workoutFreq,
@@ -41,6 +62,17 @@ function Questionnaire() {
                 return
             }
 
+            localStorage.setItem('currentUser', JSON.stringify({
+                ...currentUser,
+                questionaire: {
+                    sportType: data.sportType,
+                    experienceLevel: data.experienceLevel,
+                    daysPerWeek: workoutFreq,
+                    age: Number(age),
+                    workoutPlan: data.workoutPlan._id,
+                    score: data.score,
+                },
+            }))
             localStorage.setItem('questionnaireResult', JSON.stringify(data))
             navigate('/statistics', { state: data })
         } catch {

@@ -2,6 +2,15 @@ import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { colors } from '../styles/theme'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001'
+
+const sportLabelMap = {
+    football: 'Football',
+    soccer: 'Soccer',
+    volleyball: 'Volleyball',
+    racketsports: 'Racquet Sports',
+}
+
 
 /*
 -Will need to connect progress bar from workout page to the progress bar on this page, so that it updates as the user completes workouts
@@ -20,24 +29,60 @@ function Statistics(){
     const [currentLevel, setCurrentLevel] = useState(0)
 
     useEffect(() => {
-        if (location.state?.workoutPlan) {
-            setPlanData(location.state)
-            setLoadError('')
-            return
+        const loadDashboardData = async () => {
+            const storedUser = localStorage.getItem('currentUser')
+            const currentUser = storedUser ? JSON.parse(storedUser) : null
+
+            if (location.state?.workoutPlan) {
+                setPlanData(location.state)
+                setLoadError('')
+                return
+            }
+
+            if (currentUser?.id && currentUser?.questionaire) {
+                try {
+                    const res = await fetch(`${API_URL}/progress/dashboard/${currentUser.id}`)
+                    const data = await res.json()
+
+                    if (!res.ok) {
+                        setLoadError(data.message || 'Could not load saved dashboard data.')
+                        return
+                    }
+
+                    const dashboardData = {
+                        sportType: data.user.questionaire.sportType,
+                        experienceLevel: data.user.questionaire.experienceLevel,
+                        score: data.user.questionaire.score,
+                        workoutPlan: data.workoutPlan,
+                        progress: data.progress,
+                    }
+
+                    localStorage.setItem('questionnaireResult', JSON.stringify(dashboardData))
+                    setPlanData(dashboardData)
+                    setProgress(data.progress?.completionPercent ?? 0)
+                    setLoadError('')
+                    return
+                } catch {
+                    setLoadError('Could not load your saved dashboard. Please try again.')
+                    return
+                }
+            }
+
+            const storedResult = localStorage.getItem('questionnaireResult')
+            if (!storedResult) {
+                setLoadError('No questionnaire result found yet. Please complete the questionnaire first.')
+                return
+            }
+
+            try {
+                setPlanData(JSON.parse(storedResult))
+                setLoadError('')
+            } catch {
+                setLoadError('Saved questionnaire result could not be read. Please submit the questionnaire again.')
+            }
         }
 
-        const storedResult = localStorage.getItem('questionnaireResult')
-        if (!storedResult) {
-            setLoadError('No questionnaire result found yet. Please complete the questionnaire first.')
-            return
-        }
-
-        try {
-            setPlanData(JSON.parse(storedResult))
-            setLoadError('')
-        } catch {
-            setLoadError('Saved questionnaire result could not be read. Please submit the questionnaire again.')
-        }
+        loadDashboardData()
     }, [location.state])
 
     const maxLevel = 3
@@ -57,6 +102,11 @@ function Statistics(){
     )
 
     useEffect(() => {
+        if (planData?.progress?.completionPercent !== undefined) {
+            setProgress(planData.progress.completionPercent)
+            return
+        }
+
         if (planData?.workoutPlan?.weeklyPlan?.length) {
             setProgress(100)
         }
@@ -85,7 +135,7 @@ function Statistics(){
                 <h2 style={styles.subtitle}>Your Statistics</h2>
                 {planData && (
                     <div style={styles.summaryCard}>
-                        <p style={styles.summaryText}><strong>Sport:</strong> {planData.sportType}</p>
+                        <p style={styles.summaryText}><strong>Sport:</strong> {sportLabelMap[planData.sportType] ?? planData.sportType}</p>
                         <p style={styles.summaryText}><strong>Level:</strong> {planData.experienceLevel}</p>
                         <p style={styles.summaryText}><strong>Plan:</strong> {planData.workoutPlan.title}</p>
                     </div>
