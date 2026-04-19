@@ -133,7 +133,9 @@ router.post("/questionnaire", async (req, res) => {
           sportType: normalizedSport,
           experienceLevel,
           weekStart: getWeekStart(),
+          weekStartDate: getWeekStart(),
           days: buildDayProgress(workoutPlan.weeklyPlan ?? []),
+          completedItems: [],
         },
         { upsert: true, new: true, setDefaultsOnInsert: true }
       );

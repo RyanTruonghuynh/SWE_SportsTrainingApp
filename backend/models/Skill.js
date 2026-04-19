@@ -9,13 +9,16 @@ const skillSchema = new mongoose.Schema(
     },
     category: {
       type: String,
+      enum: ["footwork", "coordination", "technique", "tactical"],
       required: true,
       trim: true,
     },
-    sport: {
-      type: [String],
-      default: [],
-    },
+    sport: [
+      {
+        type: String,
+        enum: ["racketsports", "soccer", "volleyball", "football"],
+      },
+    ],
     difficultyLevel: {
       type: String,
       enum: ["beginner", "intermediate", "advanced"],
@@ -24,14 +27,21 @@ const skillSchema = new mongoose.Schema(
     sets: {
       type: Number,
       required: true,
+      default: 1,
     },
     reps: {
       type: Number,
       required: true,
+      default: 1,
+    },
+    duration: {
+      type: String,
+      default: "",
     },
     description: {
       type: String,
       required: true,
+      trim: true,
     },
   },
   { timestamps: true }

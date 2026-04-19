@@ -16,6 +16,25 @@ const completionItemSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const legacyCompletedItemSchema = new mongoose.Schema(
+  {
+    day: {
+      type: String,
+      enum: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    },
+    itemType: {
+      type: String,
+      enum: ["workout", "skill"],
+    },
+    itemTitle: String,
+    completed: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  { _id: false }
+);
+
 const dayProgressSchema = new mongoose.Schema(
   {
     day: {
@@ -45,23 +64,26 @@ const progressSchema = new mongoose.Schema(
     sportType: {
       type: String,
       enum: ["racketsports", "soccer", "volleyball", "football"],
-      required: true,
     },
     experienceLevel: {
       type: String,
       enum: ["beginner", "intermediate", "advanced"],
-      required: true,
     },
     weekStart: {
       type: Date,
-      required: true,
+      index: true,
+    },
+    weekStartDate: {
+      type: Date,
       index: true,
     },
     days: [dayProgressSchema],
+    completedItems: [legacyCompletedItemSchema],
   },
   { timestamps: true }
 );
 
-progressSchema.index({ user: 1, weekStart: 1 }, { unique: true });
+progressSchema.index({ user: 1, weekStart: 1 }, { unique: true, sparse: true });
+progressSchema.index({ user: 1, workoutPlan: 1, weekStartDate: 1 }, { unique: true, sparse: true });
 
 export default mongoose.model("Progress", progressSchema);

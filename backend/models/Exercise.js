@@ -9,17 +9,22 @@ const exerciseSchema = new mongoose.Schema(
     },
     category: {
       type: String,
+      enum: ["strength", "agility", "endurance", "flexibility"],
       required: true,
       trim: true,
     },
-    muscleGroups: {
-      type: [String],
-      default: [],
-    },
-    sport: {
-      type: [String],
-      default: [],
-    },
+    muscleGroups: [
+      {
+        type: String,
+        enum: ["chest", "back", "shoulders", "legs", "glutes", "arms", "core"],
+      },
+    ],
+    sport: [
+      {
+        type: String,
+        enum: ["racketsports", "soccer", "volleyball", "football"],
+      },
+    ],
     difficultyLevel: {
       type: String,
       enum: ["beginner", "intermediate", "advanced"],
@@ -28,14 +33,21 @@ const exerciseSchema = new mongoose.Schema(
     sets: {
       type: Number,
       required: true,
+      default: 1,
     },
     reps: {
       type: Number,
       required: true,
+      default: 1,
+    },
+    duration: {
+      type: String,
+      default: "",
     },
     description: {
       type: String,
       required: true,
+      trim: true,
     },
   },
   { timestamps: true }

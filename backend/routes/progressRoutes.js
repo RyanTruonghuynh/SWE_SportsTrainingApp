@@ -129,7 +129,9 @@ const ensureProgressForUser = async (userId) => {
     sportType: user.questionaire.sportType,
     experienceLevel: user.questionaire.experienceLevel,
     weekStart,
+    weekStartDate: weekStart,
     days: buildDayProgress(workoutPlan.weeklyPlan ?? []),
+    completedItems: [],
   });
 
   return { user, progress };
@@ -183,6 +185,22 @@ router.patch("/:userId/items", async (req, res) => {
 
     targetItem.completed = completed;
     targetItem.completedAt = completed ? new Date() : undefined;
+
+    const legacyTitleKey = category === "workout" ? "workout" : "skill";
+    const existingLegacyItem = progress.completedItems.find(
+      (item) => item.day === day && item.itemType === legacyTitleKey && item.itemTitle === title
+    );
+
+    if (existingLegacyItem) {
+      existingLegacyItem.completed = completed;
+    } else {
+      progress.completedItems.push({
+        day,
+        itemType: legacyTitleKey,
+        itemTitle: title,
+        completed,
+      });
+    }
 
     await progress.save();
 
