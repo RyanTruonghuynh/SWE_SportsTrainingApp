@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { colors } from '../styles/theme'
 
 
@@ -13,38 +13,67 @@ Or only track weekly workout completion and update progress bar on this page bas
 
 function Statistics(){
     const navigate = useNavigate()
-    const [progress, setProgress] = useState(100)
-    const [userLevel, setUserLevel] = useState(8)
-    const maxLevel = 8
-    const excerciseList = [
-        'Squats',
-        'Lunges',
-        'Push-ups',
-        'Pull-ups',
-        'Planks',
-        'Burpees',
-        'Deadlifts',
-        'Bench Press',
-        'Rows',
-        'Overhead Press',
-    ]
-    const skillsList = [
-        'Skill1',
-        'Skill2',
-        'Skill3',
-    ]
-    const HomePage = () => {
-        navigate('/')
+    const location = useLocation()
+    const [progress, setProgress] = useState(0)
+    const [planData, setPlanData] = useState(null)
+    const [loadError, setLoadError] = useState('')
+    const [currentLevel, setCurrentLevel] = useState(0)
+
+    useEffect(() => {
+        if (location.state?.workoutPlan) {
+            setPlanData(location.state)
+            setLoadError('')
+            return
+        }
+
+        const storedResult = localStorage.getItem('questionnaireResult')
+        if (!storedResult) {
+            setLoadError('No questionnaire result found yet. Please complete the questionnaire first.')
+            return
+        }
+
+        try {
+            setPlanData(JSON.parse(storedResult))
+            setLoadError('')
+        } catch {
+            setLoadError('Saved questionnaire result could not be read. Please submit the questionnaire again.')
+        }
+    }, [location.state])
+
+    const maxLevel = 3
+    const levelMap = {
+        beginner: 1,
+        intermediate: 2,
+        advanced: 3,
     }
+
+    const baseLevel = planData ? levelMap[planData.experienceLevel] ?? 1 : 0
+    const weeklyPlan = planData?.workoutPlan?.weeklyPlan ?? []
+    const exerciseList = weeklyPlan.flatMap((day) =>
+        (day.workoutItems ?? []).map((item) => `${day.day}: ${item.title}`)
+    )
+    const skillsList = weeklyPlan.flatMap((day) =>
+        (day.skillsItems ?? []).map((item) => `${day.day}: ${item.title}`)
+    )
+
+    useEffect(() => {
+        if (planData?.workoutPlan?.weeklyPlan?.length) {
+            setProgress(100)
+        }
+    }, [planData])
+
+    useEffect(() => {
+        setCurrentLevel(baseLevel)
+    }, [baseLevel])
+
     const keepCurrentLevel = () => {
-        setUserLevel((prev) => prev)
         setProgress(0)
     }
     const progressToNextLevel = () => {
-        if (userLevel === maxLevel) {
+        if (currentLevel === maxLevel) {
             navigate('/questionnaire')
         } else {
-            setUserLevel((prev) => Math.min(maxLevel, prev + 1))
+            setCurrentLevel((prev) => Math.min(maxLevel, prev + 1))
             setProgress(0)
         }
     }
@@ -54,6 +83,14 @@ function Statistics(){
             <h1 style={styles.title} onClick={()=> navigate('/')}>Train<span style={styles.titleAccent}>r</span></h1>
             <div style={styles.card}>
                 <h2 style={styles.subtitle}>Your Statistics</h2>
+                {planData && (
+                    <div style={styles.summaryCard}>
+                        <p style={styles.summaryText}><strong>Sport:</strong> {planData.sportType}</p>
+                        <p style={styles.summaryText}><strong>Level:</strong> {planData.experienceLevel}</p>
+                        <p style={styles.summaryText}><strong>Plan:</strong> {planData.workoutPlan.title}</p>
+                    </div>
+                )}
+                {loadError && <p style={styles.errorText}>{loadError}</p>}
                 <h3 style={styles.progressLabel}>Workout Progress</h3>
                 <div style={styles.progressBarContainer}>
                     <div style={{...styles.progressBarFill,width: `${progress}%`}}></div>
@@ -63,23 +100,23 @@ function Statistics(){
                 <div style={styles.subContainersRow}>
                     <div style={styles.subContainer1}>
                         <h3 style={styles.subContainerTitle}>Exercises Done</h3>
-                        {excerciseList.length === 0 ? (
+                        {exerciseList.length === 0 ? (
                             <p style={styles.emptyStateText}>No Exercises Completed!</p>
                         ) : (
-                            excerciseList.map((item, index)=> (
+                            exerciseList.map((item, index)=> (
                                 <p key={index} style={styles.dash}>- {item}</p>
                             ))
                         )}
                     </div>
                     <div style={styles.middleContainersColumn}>
                         <div style={styles.middleContainerCard}>
-                            <h3 style={styles.subContainerTitle}>Streak</h3>
-                            <p style={styles.middleContainerValue}>7 Days</p>
+                            <h3 style={styles.subContainerTitle}>Plan Days</h3>
+                            <p style={styles.middleContainerValue}>{weeklyPlan.length} Days</p>
                         </div>
 
                         <div style={styles.middleContainerCard}>
-                            <h3 style={styles.subContainerTitle}>Time Spent</h3>
-                            <p style={styles.middleContainerValue}>3 Weeks</p>
+                            <h3 style={styles.subContainerTitle}>Plan Score</h3>
+                            <p style={styles.middleContainerValue}>{planData?.score ?? 0}</p>
                         </div>
                     </div>
 
@@ -94,11 +131,13 @@ function Statistics(){
                         )}
                     </div>
                 </div>
-                <p style={styles.currentLevelText}>Current Level: {userLevel} ({userLevel}/{maxLevel})</p>
+                <p style={styles.currentLevelText}>
+                    Current Level: {planData?.experienceLevel ?? 'Not set'} ({currentLevel}/{maxLevel})
+                </p>
                 {progress === 100 && (
                     <div style={styles.buttonContainerRow}>
                         <button style={styles.sameLevelButton} onClick={keepCurrentLevel}>Stay at current level</button>
-                        <button style={styles.nextLevelButton} onClick={progressToNextLevel}>{userLevel === maxLevel ? 'Max level (Select New Sport)' : 'Progress to Next Level'}</button>
+                        <button style={styles.nextLevelButton} onClick={progressToNextLevel}>{currentLevel === maxLevel ? 'Max level (Select New Sport)' : 'Progress to Next Level'}</button>
                     </div>
                 )}
             </div>
@@ -137,6 +176,29 @@ const styles = {
         marginBottom: '20px',
         textAlign: 'center',
         fontWeight: '600',
+        width: '100%',
+    },
+    summaryCard: {
+        width: '100%',
+        backgroundColor: '#173351',
+        border: `1px solid ${colors.cardBorder}`,
+        borderRadius: '10px',
+        padding: '16px 18px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        gap: '16px',
+        flexWrap: 'wrap',
+    },
+    summaryText: {
+        color: colors.textPrimary,
+        margin: 0,
+        fontSize: '14px',
+    },
+    errorText: {
+        color: colors.errorText,
+        margin: 0,
+        fontSize: '14px',
+        textAlign: 'center',
         width: '100%',
     },
     progressLabel: {

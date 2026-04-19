@@ -1,4 +1,3 @@
-import { type } from "@testing-library/user-event/dist/cjs/utility/type.js";
 import mongoose from "mongoose";
 
 const objectScehma = new mongoose.Schema({

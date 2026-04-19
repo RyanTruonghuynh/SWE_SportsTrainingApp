@@ -8,7 +8,9 @@ function Questionnaire() {
     const [sportSelected, setSportSelected] = useState('')
     const [yearsExperience, setYearsExperience] = useState(0)
     const [workoutFreq, setWorkoutFreq] = useState(0)
-    const [age, setAge] = useState('') 
+    const [age, setAge] = useState('')
+    const [error, setError] = useState('')
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const ageFunc = (e) => {
         const value = e.target.value
@@ -16,14 +18,36 @@ function Questionnaire() {
             setAge(value)
         }
     }
-    const saveAndContinueFunc = () => {
-        console.log('Saved preferences:', {
-            sport: sportSelected,
-            experience: yearsExperience,
-            frequency: workoutFreq,
-            age: age
-        })
-        navigate('/statistics')
+    const saveAndContinueFunc = async () => {
+        setError('')
+        setIsSubmitting(true)
+
+        try {
+            const res = await fetch('http://localhost:5001/assessment/questionnaire', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sport: sportSelected,
+                    yearsExperience,
+                    workoutFreq,
+                    age: Number(age),
+                }),
+            })
+
+            const data = await res.json()
+
+            if (!res.ok) {
+                setError(data.message || 'Could not load workout plan.')
+                return
+            }
+
+            localStorage.setItem('questionnaireResult', JSON.stringify(data))
+            navigate('/statistics', { state: data })
+        } catch {
+            setError('Could not connect to server.')
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     return(
@@ -117,14 +141,17 @@ function Questionnaire() {
                     </div>
                 )}
 
+                {error && <p style={styles.error}>{error}</p>}
+
                 {/*Save and Continue Button*/}
                 {sportSelected && (
                     <div style={styles.buttonContainer}>
                         <button 
                             style={styles.saveButton}
                             onClick={saveAndContinueFunc}
+                            disabled={!age || isSubmitting}
                         >
-                            Save and Continue
+                            {isSubmitting ? 'Loading Plan...' : 'Save and Continue'}
                         </button>
                     </div>
                 )}
@@ -277,6 +304,13 @@ const styles = {
         color: colors.textMuted,
         fontSize: '12px',
         marginTop: '4px',
+    },
+    error: {
+        color: colors.errorText,
+        fontSize: '14px',
+        margin: 0,
+        width: '100%',
+        textAlign: 'center',
     },
     buttonContainer: {
         width: '100%',
