@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"nodemon backend/server.js\" \"vite\"",
+    "seed": "node backend/scripts/seedData.js",
     "seed:workout-plans": "node backend/scripts/seedWorkoutPlans.js",
     "build": "vite build",
     "preview": "vite preview",
