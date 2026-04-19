@@ -24,11 +24,12 @@ function Login() {
       })
       const data = await res.json()
       if (data.message === 'Login successful') {
-        navigate('/questionnaire')
+        localStorage.setItem('currentUser', JSON.stringify(data.user))
+        navigate(data.user?.questionaire ? '/statistics' : '/questionnaire')
       } else {
         setError(data.message)
       }
-    } catch (err) {
+    } catch {
       setError('Could not connect to server.')
     }
   }

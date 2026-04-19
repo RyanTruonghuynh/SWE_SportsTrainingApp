@@ -28,9 +28,20 @@ function calculateProgress(workoutPlan, progress) {
         return 0;
     }
 
+    if (progress.days?.length) {
+        let completedItems = 0;
+
+        progress.days.forEach((day) => {
+            completedItems += day.workoutItems.filter((item) => item.completed).length;
+            completedItems += day.skillItems.filter((item) => item.completed).length;
+        });
+
+        return Math.round((completedItems / totalItems) * 100);
+    }
+
     let completedItems = 0;
 
-    progress.completedItems.forEach((item) => {
+    (progress.completedItems ?? []).forEach((item) => {
         if (item.completed) {
             completedItems += 1;
         }
@@ -53,13 +64,13 @@ router.get("/current", async (req, res) => {
             progress = await Progress.findOne({
                 user: userId,
                 workoutPlan: workoutPlan._id,
-                weekStartDate: getStartOfWeek(),
+                $or: [{ weekStartDate: getStartOfWeek() }, { weekStart: getStartOfWeek() }],
             });
         }
 
         res.json({
             workoutPlan,
-            progress: progress || { completedItems: [] },
+            progress: progress || { completedItems: [], days: [] },
             progressPercent: calculateProgress(workoutPlan, progress),
         });
     } catch (error) {
@@ -85,7 +96,7 @@ router.patch("/progress", async (req, res) => {
         let progress = await Progress.findOne({
             user: userId,
             workoutPlan: workoutPlanId,
-            weekStartDate: getStartOfWeek(),
+            $or: [{ weekStartDate: getStartOfWeek() }, { weekStart: getStartOfWeek() }],
         });
 
         if (!progress) {
@@ -93,6 +104,7 @@ router.patch("/progress", async (req, res) => {
                 user: userId,
                 workoutPlan: workoutPlanId,
                 weekStartDate: getStartOfWeek(),
+                weekStart: getStartOfWeek(),
                 completedItems: [],
             });
         }
@@ -110,6 +122,17 @@ router.patch("/progress", async (req, res) => {
                 itemTitle,
                 completed,
             });
+        }
+
+        const dayProgress = progress.days?.find((entry) => entry.day === day);
+        if (dayProgress) {
+            const items = itemType === "workout" ? dayProgress.workoutItems : dayProgress.skillItems;
+            const targetItem = items.find((item) => item.title === itemTitle);
+
+            if (targetItem) {
+                targetItem.completed = completed;
+                targetItem.completedAt = completed ? new Date() : undefined;
+            }
         }
 
         await progress.save();

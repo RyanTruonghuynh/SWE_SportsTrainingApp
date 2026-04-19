@@ -1,11 +1,13 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import process from "node:process";
+import { pathToFileURL } from "node:url";
 import Exercise from "../models/Exercise.js";
 import Skill from "../models/Skill.js";
 
 dotenv.config();
 
-const exercises = [
+export const exercises = [
     { name: "Beginner Bench Press", category: "strength", muscleGroups: ["chest", "arms", "shoulders"], sport: ["racketsports", "football"], difficultyLevel: "beginner", sets: 3, reps: 12, description: "Builds upper-body pressing strength for shoulder stability and powerful swings." },
     { name: "Intermediate Dumbbell Bench Press", category: "strength", muscleGroups: ["chest", "arms", "shoulders"], sport: ["racketsports", "football"], difficultyLevel: "intermediate", sets: 4, reps: 8, description: "Builds upper-body pressing strength for shoulder stability and powerful swings." },
     { name: "Advanced Barbell Bench Press", category: "strength", muscleGroups: ["chest", "arms", "shoulders"], sport: ["racketsports", "football"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Builds upper-body pressing strength for shoulder stability and powerful swings." },
@@ -68,7 +70,7 @@ const exercises = [
     { name: "Advanced Standing Hamstring Stretch", category: "flexibility", muscleGroups: ["legs", "glutes"], sport: ["racketsports", "soccer", "football", "volleyball"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Supports posterior-chain mobility for sprinting, kicking, and low positions." },
 ];
 
-const skills = [
+export const skills = [
     { name: "Beginner Dribbling Control", category: "technique", sport: ["soccer"], difficultyLevel: "beginner", sets: 3, reps: 3, description: "Keeps the ball close while changing speed and direction." },
     { name: "Intermediate Dribbling Control", category: "technique", sport: ["soccer"], difficultyLevel: "intermediate", sets: 4, reps: 4, description: "Keeps the ball close while changing speed and direction." },
     { name: "Advanced Dribbling Control", category: "technique", sport: ["soccer"], difficultyLevel: "advanced", sets: 5, reps: 5, description: "Keeps the ball close while changing speed and direction." },
@@ -111,7 +113,7 @@ const skills = [
     { name: "Beginner Ready Position Reset", category: "footwork", sport: ["racketsports", "soccer", "volleyball", "football"], difficultyLevel: "beginner", sets: 3, reps: 3, description: "Practices returning to an athletic stance after each movement." },
 ];
 
-const seedData = async () => {
+export const seedData = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI);
 
@@ -130,4 +132,9 @@ const seedData = async () => {
     }
 };
 
-seedData();
+const shouldRunDirectly =
+  process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (shouldRunDirectly) {
+  seedData();
+}

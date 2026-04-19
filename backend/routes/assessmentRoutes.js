@@ -1,5 +1,7 @@
 import express from "express";
+import User from "../models/User.js";
 import WorkoutPlan from "../models/WorkoutPlan.js";
+import Progress from "../models/Progress.js";
 
 const router = express.Router();
 
@@ -40,9 +42,31 @@ const calculateExperienceLevel = (yearsExperience, workoutFreq) => {
   return { experienceLevel: "beginner", score };
 };
 
+const getWeekStart = (date = new Date()) => {
+  const utcDate = new Date(date);
+  const day = utcDate.getUTCDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  utcDate.setUTCDate(utcDate.getUTCDate() + diff);
+  utcDate.setUTCHours(0, 0, 0, 0);
+  return utcDate;
+};
+
+const buildDayProgress = (weeklyPlan) =>
+  weeklyPlan.map((day) => ({
+    day: day.day,
+    workoutItems: (day.workoutItems ?? []).map((item) => ({
+      title: item.title,
+      completed: false,
+    })),
+    skillItems: (day.skillsItems ?? []).map((item) => ({
+      title: item.title,
+      completed: false,
+    })),
+  }));
+
 router.post("/questionnaire", async (req, res) => {
   try {
-    const { sport, yearsExperience, workoutFreq, age } = req.body;
+    const { sport, yearsExperience, workoutFreq, age, userId } = req.body;
 
     if (!sport || yearsExperience === undefined || workoutFreq === undefined || age === undefined) {
       return res.status(400).json({ message: "sport, yearsExperience, workoutFreq, and age are required" });
@@ -74,7 +98,7 @@ router.post("/questionnaire", async (req, res) => {
     const workoutPlan = await WorkoutPlan.findOne({
       sportType: normalizedSport,
       experienceLevel,
-    }).lean();
+    });
 
     if (!workoutPlan) {
       return res.status(404).json({
@@ -84,7 +108,41 @@ router.post("/questionnaire", async (req, res) => {
       });
     }
 
+    let user = null;
+    if (userId) {
+      user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      user.questionaire = {
+        sportType: normalizedSport,
+        experienceLevel,
+        daysPerWeek: parsedWorkoutFreq,
+        age: parsedAge,
+        workoutPlan: workoutPlan._id,
+        score,
+      };
+      await user.save();
+
+      await Progress.findOneAndUpdate(
+        { user: user._id, weekStart: getWeekStart() },
+        {
+          user: user._id,
+          workoutPlan: workoutPlan._id,
+          sportType: normalizedSport,
+          experienceLevel,
+          weekStart: getWeekStart(),
+          weekStartDate: getWeekStart(),
+          days: buildDayProgress(workoutPlan.weeklyPlan ?? []),
+          completedItems: [],
+        },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
+    }
+
     res.json({
+      userId: user?._id ?? null,
       sportType: normalizedSport,
       experienceLevel,
       score,

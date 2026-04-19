@@ -1,41 +1,50 @@
-import { type } from "@testing-library/user-event/dist/cjs/utility/index.js";
 import mongoose from "mongoose";
 
-const skillSchema = new mongoose.Schema({
-    name:{
-        type: String,
-        required: true,
+const skillSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
     },
     category: {
-        type: String,
-        enum: ["footwork","coordination", "technique", "tactical"],
-        required: true,
+      type: String,
+      enum: ["footwork", "coordination", "technique", "tactical"],
+      required: true,
+      trim: true,
     },
-    sport:[
-        {
-            type: String,
-            enum: ["racketsports", "soccer", "volleyball","football"],
-        },
+    sport: [
+      {
+        type: String,
+        enum: ["racketsports", "soccer", "volleyball", "football"],
+      },
     ],
     difficultyLevel: {
-        type: String,
-        enum: ["beginner", "intermediate", "advanced"],
-        required: true,
+      type: String,
+      enum: ["beginner", "intermediate", "advanced"],
+      required: true,
     },
     sets: {
-        type: Number,
-        default: 1,
+      type: Number,
+      required: true,
+      default: 1,
     },
     reps: {
-        type: Number,
-        default: 1,
+      type: Number,
+      required: true,
+      default: 1,
     },
-    duration:{
-        type: String,
-        default: "",
+    duration: {
+      type: String,
+      default: "",
     },
-},
-{timestamps: true}
+    description: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+  },
+  { timestamps: true }
 );
 
 export default mongoose.model("Skill", skillSchema);
