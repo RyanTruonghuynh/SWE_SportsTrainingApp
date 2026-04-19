@@ -4,8 +4,7 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Questionnaire from './pages/Questionnaire'
 import Statistics from './pages/Statistics'
-
-
+import WeeklyWorkout from './pages/WeeklyWorkout'
 
 
 function App() {
@@ -16,7 +15,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/questionnaire" element={<Questionnaire />} />
-        <Route path="/statistics" element={<Statistics/>} />
+        <Route path="/statistics" element={<Statistics />} />
+        <Route path="/weekly" element={<WeeklyWorkout />} />
       </Routes>
     </BrowserRouter>
   )

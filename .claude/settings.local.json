@@ -1,7 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(find /c/Users/krist/.vscode/swe_project/SWE_SportsTrainingApp -type f \\\\\\(-name *.test.js -o -name *.test.jsx -o -name *.spec.js -o -name *.spec.jsx \\\\\\))"
-    ]
-  }
-}

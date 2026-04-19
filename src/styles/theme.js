@@ -1,3 +1,14 @@
+// One color per day of the week (Sun → Sat), used by DonutChart rings and exercise indicators
+export const ringColors = [
+  '#E91E8C', // Sunday
+  '#00C896', // Monday
+  '#FF6B35', // Tuesday
+  '#FFD23F', // Wednesday
+  '#3B9EE2', // Thursday
+  '#A855F7', // Friday
+  '#22D3EE', // Saturday
+]
+
 export const colors = {
   // Brand
   primary: '#309BC1',
