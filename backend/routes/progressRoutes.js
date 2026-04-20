@@ -59,6 +59,32 @@ const resolveWorkoutPlanForUser = async (user) => {
   return workoutPlan;
 };
 
+const WEEKS_PER_LEVEL = 8
+
+const calcLevelCompletionPercent = (allProgressDocs, workoutPlan) => {
+  const itemsPerWeek = (workoutPlan.weeklyPlan ?? []).reduce(
+    (sum, day) => sum + (day.workoutItems?.length ?? 0) + (day.skillsItems?.length ?? 0),
+    0
+  )
+  const totalLevelItems = itemsPerWeek * WEEKS_PER_LEVEL
+  if (totalLevelItems === 0) return 0
+
+  const completedAcrossLevel = allProgressDocs.reduce(
+    (sum, doc) =>
+      sum +
+      doc.days.reduce(
+        (daySum, day) =>
+          daySum +
+          (day.workoutItems ?? []).filter((i) => i.completed).length +
+          (day.skillItems ?? []).filter((i) => i.completed).length,
+        0
+      ),
+    0
+  )
+
+  return Math.min(100, Math.round((completedAcrossLevel / totalLevelItems) * 100))
+}
+
 const formatProgress = (progressDoc) => {
   const totalItems = progressDoc.days.reduce(
     (sum, day) => sum + day.workoutItems.length + day.skillItems.length,
@@ -292,6 +318,14 @@ router.get("/dashboard/:userId", async (req, res) => {
     }
     const workoutStreak = await calculateWorkoutStreak(userId);
 
+    const allProgressDocs = await Progress.find({
+      user: user._id,
+      workoutPlan: workoutPlan._id,
+    }).lean();
+
+    const levelCompletionPercent = calcLevelCompletionPercent(allProgressDocs, workoutPlan);
+    const currentWeekFormatted = formatProgress(progressResult.progress);
+
     res.json({
       user: {
         id: user._id,
@@ -301,7 +335,8 @@ router.get("/dashboard/:userId", async (req, res) => {
       },
       workoutPlan,
       progress: {
-        ...formatProgress(progressResult.progress),
+        ...currentWeekFormatted,
+        completionPercent: levelCompletionPercent,
         workoutStreak,
       },
     });
@@ -309,5 +344,42 @@ router.get("/dashboard/:userId", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+const LEVEL_ORDER = ['beginner', 'intermediate', 'advanced']
+
+router.patch('/:userId/advance-level', async (req, res) => {
+  try {
+    const { userId } = req.params
+    const user = await User.findById(userId).lean()
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+
+    const current = user.questionaire?.experienceLevel
+    const currentIndex = LEVEL_ORDER.indexOf(current)
+
+    if (currentIndex === -1) {
+      return res.status(400).json({ message: 'Unknown experience level' })
+    }
+
+    if (currentIndex === LEVEL_ORDER.length - 1) {
+      return res.status(400).json({ message: 'Already at max level' })
+    }
+
+    const nextLevel = LEVEL_ORDER[currentIndex + 1]
+
+    await User.findByIdAndUpdate(userId, {
+      $set: {
+        'questionaire.experienceLevel': nextLevel,
+        'questionaire.workoutPlan': null,
+      },
+    })
+
+    res.json({ experienceLevel: nextLevel })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
 
 export default router;
