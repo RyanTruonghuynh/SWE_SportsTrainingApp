@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { colors } from '../styles/theme'
 
@@ -42,6 +42,14 @@ function Statistics() {
     const [currentLevel, setCurrentLevel] = useState(0)
     const [expandedExerciseDays, setExpandedExerciseDays] = useState(new Set())
     const [expandedSkillDays, setExpandedSkillDays] = useState(new Set())
+    const [menuOpen, setMenuOpen] = useState(false)
+    const menuRef = useRef(null)
+
+    const currentUser = (() => {
+        try { return JSON.parse(localStorage.getItem('currentUser') || 'null') } catch { return null }
+    })()
+    const username = currentUser?.username ?? ''
+    const initials = username.slice(0, 2).toUpperCase() || '?'
 
     const toggleDay = (setter, day) => {
         setter((prev) => {
@@ -50,6 +58,14 @@ function Statistics() {
             return next
         })
     }
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false)
+        }
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [])
 
     useEffect(() => {
         const loadDashboardData = async () => {
@@ -149,24 +165,46 @@ function Statistics() {
         setProgress(0)
     }
 
-    const progressToNextLevel = () => {
+    const progressToNextLevel = async () => {
         const storedUser = localStorage.getItem('currentUser')
         const currentUser = storedUser ? JSON.parse(storedUser) : null
         const userId = currentUser?.id ?? currentUser?._id
-        // clear dismissal so fresh progress can accumulate from the real backend value
         if (userId) {
             localStorage.removeItem(getDismissedKey(userId))
         }
         if (currentLevel === MAX_LEVEL) {
             navigate('/questionnaire')
-        } else {
-            setCurrentLevel((prev) => Math.min(MAX_LEVEL, prev + 1))
-            setProgress(0)
+            return
         }
+        if (userId) {
+            try {
+                await fetch(`${API_URL}/progress/${userId}/advance-level`, { method: 'PATCH' })
+            } catch {
+                // proceed with local state update even if backend call fails
+            }
+        }
+        setCurrentLevel((prev) => Math.min(MAX_LEVEL, prev + 1))
+        setProgress(0)
     }
 
     return (
         <div style={styles.container}>
+            <div style={styles.avatarWrapper} ref={menuRef}>
+                <button style={styles.avatarBtn} onClick={() => setMenuOpen((o) => !o)} aria-label="Account menu">
+                    {initials}
+                </button>
+                {menuOpen && (
+                    <div style={styles.dropdown}>
+                        <p style={styles.dropdownName}>{username || 'Account'}</p>
+                        <hr style={styles.dropdownDivider} />
+                        <button style={styles.dropdownItem} onClick={() => {
+                            localStorage.removeItem('currentUser')
+                            navigate('/login')
+                        }}>Sign out</button>
+                    </div>
+                )}
+            </div>
+
             <h1 style={styles.title} onClick={() => navigate('/weekly')}>
                 Train<span style={styles.titleAccent}>r</span>
             </h1>
@@ -622,6 +660,63 @@ const styles = {
         padding: '12px 20px',
         fontSize: '14px',
         fontWeight: '700',
+        cursor: 'pointer',
+    },
+    avatarWrapper: {
+        position: 'fixed',
+        top: '20px',
+        right: '24px',
+        zIndex: 1000,
+    },
+    avatarBtn: {
+        width: '36px',
+        height: '36px',
+        borderRadius: '50%',
+        backgroundColor: colors.primary,
+        color: '#fff',
+        border: 'none',
+        fontSize: '13px',
+        fontWeight: '700',
+        cursor: 'pointer',
+        letterSpacing: '0.03em',
+    },
+    dropdown: {
+        position: 'absolute',
+        top: '48px',
+        right: 0,
+        backgroundColor: colors.cardBg,
+        border: `1px solid ${colors.cardBorder}`,
+        borderRadius: '10px',
+        padding: '8px 0',
+        minWidth: '160px',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
+        zIndex: 100,
+    },
+    dropdownName: {
+        color: colors.textMuted,
+        fontSize: '12px',
+        margin: 0,
+        padding: '4px 14px 8px',
+        fontWeight: '500',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+    },
+    dropdownDivider: {
+        border: 'none',
+        borderTop: `1px solid ${colors.cardBorder}`,
+        margin: '0 0 4px',
+    },
+    dropdownItem: {
+        display: 'block',
+        width: '100%',
+        background: 'none',
+        border: 'none',
+        color: colors.textPrimary,
+        fontSize: '13px',
+        fontWeight: '500',
+        padding: '7px 14px',
+        textAlign: 'left',
         cursor: 'pointer',
     },
 }
