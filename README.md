@@ -55,13 +55,8 @@ Resend is used to send account verification emails when a user signs up.
    - Vite will print a local URL in the terminal (usually http://localhost:5173)
 
 ## Available scripts
-- `npm run dev` — start the dev server
-- `npm run build` — create a production build
-- `npm run preview` — preview the production build
-- `npm run lint` — run ESLint
-- `npm test` — run tests in watch mode (re-runs on file changes)
-- `npm run test:run` — run tests once and exit
-- `npm run test:coverage` — run tests and generate a coverage report
+- `npm run dev` - start the dev server
+- `npm run build` - create a production build
 
 ## Testing
 
