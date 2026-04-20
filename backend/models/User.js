@@ -54,7 +54,14 @@ const userSchema = new mongoose.Schema(
     },
     questionaire:{
       type: questionaireSchema,
-    },  // embed the questionaire schema within the user schema
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+    },
   },
   {timestamps: true}    // automatically adds createdAt & updatedAt
 );

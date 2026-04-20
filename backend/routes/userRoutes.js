@@ -1,5 +1,7 @@
 import express from "express";
+import crypto from "node:crypto";
 import User from "../models/User.js";
+import { sendVerificationEmail } from "../services/email.js";
 
 const router = express.Router();
 
@@ -36,9 +38,10 @@ router.post("/signUP", async (req, res) => {
     if (existingEmail) {
       return res.status(409).json({ message: "Email already exists" });
     }
-     //if not, create new user
-    const newUser = await new User({username, email, password}).save();
-    res.status(201).json({message: "New user created", user: serializeUser(newUser)});
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const newUser = await new User({ username, email, password, verificationToken }).save();
+    await sendVerificationEmail(email, verificationToken);
+    res.status(201).json({ message: "Account created. Please check your email to verify your account." });
     
   } 
   catch (error) { //error handling
@@ -57,14 +60,30 @@ router.post("/login", async (req, res) => {
     if(!potentialUser){//if user doesnt exist
         return res.status(404).json({message: "User doesn't exist"});
     }
-    if(potentialUser.password !== password){ //if password is incorrect
+    if(potentialUser.password !== password){
         return res.status(401).json({message: "Password incorrect"});
     }
-    else{ //log in successful
-        res.json({message: "Login successful", user: serializeUser(potentialUser)});
+    if (!potentialUser.isVerified) {
+        return res.status(403).json({ message: "Please verify your email before logging in." });
     }
+    res.json({message: "Login successful", user: serializeUser(potentialUser)});
   } 
   catch (error) { //error handling
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/verify/:token", async (req, res) => {
+  try {
+    const user = await User.findOne({ verificationToken: req.params.token });
+    if (!user) {
+      return res.status(400).send("Invalid or expired verification link.");
+    }
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    await user.save();
+    res.send("Email verified! You can now <a href='http://localhost:5173/login'>log in</a>.");
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
