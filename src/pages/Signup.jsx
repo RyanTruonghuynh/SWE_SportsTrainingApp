@@ -25,10 +25,8 @@ function Signup() {
         body: JSON.stringify(form),
       })
       const data = await res.json()
-      if (data.message === 'New user created') {
-        localStorage.setItem('currentUser', JSON.stringify(data.user))
-        setSuccess('Account created! Redirecting...')
-        setTimeout(() => navigate('/questionnaire'), 1500)
+      if (res.status === 201) {
+        setSuccess('Account created! Check your email to verify your account before logging in.')
       } else {
         setError(data.message)
       }

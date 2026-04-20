@@ -52,6 +52,7 @@ function transformWorkoutData(data) {
       isActive: isToday,
       workout: (dayPlan.workoutItems ?? []).map(item => ({
         name: item.title,
+        description: item.description,
         sets: item.sets,
         reps: item.reps,
         duration: item.duration,
@@ -59,6 +60,7 @@ function transformWorkoutData(data) {
       })),
       skills: (dayPlan.skillsItems ?? []).map(item => ({
         name: item.title,
+        description: item.description,
         sets: item.sets,
         reps: item.reps,
         duration: item.duration,
@@ -174,6 +176,11 @@ function DayAccordion({ dayId, label, exercises, isToday, isPast, isFuture, ring
                 <span style={accordionSt.dot(ex.completed, ringColor)} aria-hidden="true" />
                 <div style={accordionSt.nameCol}>
                   <span style={accordionSt.name(ex.completed)}>{ex.name}</span>
+                  {ex.description && (
+                    <span style={accordionSt.description}>
+                      {ex.description}
+                    </span>
+                  )}
                   {(ex.sets || ex.reps || ex.duration) && (
                     <span style={accordionSt.meta}>
                       {ex.sets && ex.reps
@@ -284,6 +291,13 @@ const accordionSt = {
     color: 'rgba(240,244,248,0.38)',
     fontFamily: "'Outfit', sans-serif",
     fontSize: '11px',
+  },
+  description: {
+    color: 'rgba(240,244,248,0.62)',
+    fontFamily: "'Outfit', sans-serif",
+    fontSize: '12px',
+    lineHeight: '1.35',
+    maxWidth: '62ch',
   },
 }
 
