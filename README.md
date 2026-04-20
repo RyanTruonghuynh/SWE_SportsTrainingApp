@@ -12,16 +12,46 @@
    npm -v
    ```
 
+## Environment setup
+
+The backend requires a `.env` file in the project root. Create it before running:
+
+```sh
+cp .env.example .env   # then fill in your values
+```
+
+Required variables:
+
+| Variable | Description |
+|---|---|
+| `MONGO_URI` | MongoDB Atlas connection string |
+| `RESEND_API_KEY` | Resend API key for sending verification emails |
+
+### Setting up Resend (email verification)
+
+Resend is used to send account verification emails when a user signs up.
+
+1. Create a free account at [resend.com](https://resend.com)
+2. Go to **API Keys** in the dashboard and create a new key with **Full access**
+3. Copy the key and add it to your `.env`:
+   ```
+   RESEND_API_KEY=re_xxxxxxxxxxxxxxxx
+   ```
+4. **During development**, emails can only be sent to the address on your Resend account (the free plan sandbox restriction). To send to any address, add and verify a custom domain under **Domains** in the dashboard.
+
+> The app uses Resend's shared `onboarding@resend.dev` sender by default. If you add a verified domain, update the `from` field in `backend/services/email.js` to use it.
+
 ## Getting started
 1. Install dependencies:
    ```sh
    npm install
    ```
-2. Start the dev server:
+2. Set up your `.env` file (see above)
+3. Start the dev server:
    ```sh
    npm run dev
    ```
-3. Open the app:
+4. Open the app:
    - Vite will print a local URL in the terminal (usually http://localhost:5173)
 
 ## Available scripts
