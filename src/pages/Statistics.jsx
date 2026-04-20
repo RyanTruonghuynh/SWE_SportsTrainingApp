@@ -137,7 +137,7 @@ function Statistics() {
         loadDashboardData()
     }, [location.state])
 
-    const weeklyPlan = planData?.workoutPlan?.weeklyPlan ?? []
+    const workoutStreak = planData?.progress?.workoutStreak ?? 0
     const progressDays = planData?.progress?.days ?? []
 
     const exerciseGroups = groupByDay(
@@ -256,11 +256,10 @@ function Statistics() {
                             })
                         )}
                     </div>
-
                     <div style={styles.middleContainersColumn}>
                         <div style={styles.statCard}>
-                            <p style={styles.statValue}>{weeklyPlan.length}</p>
-                            <h3 style={styles.statLabel}>Plan Days</h3>
+                            <p style={styles.statValue}>{workoutStreak}</p>
+                            <h3 style={styles.statLabel}>Day Streak</h3>
                         </div>
                         <div style={styles.statCard}>
                             <p style={styles.statValue}>{planData?.score ?? 0}</p>
