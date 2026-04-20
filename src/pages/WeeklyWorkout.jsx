@@ -538,13 +538,28 @@ function WeeklyWorkout() {
   const [weekData, setWeekData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [menuOpen, setMenuOpen] = useState(false)
   const latestToggleTokenRef = useRef({})
+  const menuRef = useRef(null)
 
   // read session user for progress API calls
   const currentUser = (() => {
     try { return JSON.parse(localStorage.getItem('currentUser') || 'null') } catch { return null }
   })()
   const userId = currentUser?.id ?? currentUser?._id
+  const username = currentUser?.username ?? ''
+  const initials = username.slice(0, 2).toUpperCase() || '?'
+
+  // close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   useEffect(() => {
     const stored = localStorage.getItem('questionnaireResult')
@@ -684,6 +699,27 @@ function WeeklyWorkout() {
 
   return (
     <div style={styles.page}>
+      {/* ── Avatar fixed top-right ── */}
+      <div style={styles.avatarWrapper} ref={menuRef}>
+        <button
+          style={styles.avatarBtn}
+          onClick={() => setMenuOpen((o) => !o)}
+          aria-label="Account menu"
+        >
+          {initials}
+        </button>
+        {menuOpen && (
+          <div style={styles.dropdown}>
+            <p style={styles.dropdownName}>{username || 'Account'}</p>
+            <hr style={styles.dropdownDivider} />
+            <button style={styles.dropdownItem} onClick={() => {
+              localStorage.removeItem('currentUser')
+              navigate('/login')
+            }}>Sign out</button>
+          </div>
+        )}
+      </div>
+
       {/* ── Header ── */}
       <header style={styles.header}>
         <div />
@@ -700,9 +736,7 @@ function WeeklyWorkout() {
             </button>
           </div>
         </div>
-        <div style={styles.headerRight}>
-          <div style={styles.avatar} aria-label="User profile" role="img" />
-        </div>
+        <div style={styles.headerRight} />
       </header>
 
       {/* ── Body ── */}
@@ -773,6 +807,8 @@ const styles = {
     gridTemplateColumns: '1fr auto 1fr',
     alignItems: 'center',
     padding: '24px 0 20px',
+    position: 'relative',
+    zIndex: 10,
   },
   headerCenter: {
     display: 'flex',
@@ -811,12 +847,62 @@ const styles = {
     display: 'flex',
     justifyContent: 'flex-end',
   },
-  avatar: {
+  avatarWrapper: {
+    position: 'fixed',
+    top: '20px',
+    right: '24px',
+    zIndex: 1000,
+  },
+  avatarBtn: {
     width: '36px',
     height: '36px',
     borderRadius: '50%',
-    background: 'rgba(255,255,255,0.12)',
-    border: '2px solid rgba(255,255,255,0.18)',
+    backgroundColor: colors.primary,
+    color: '#fff',
+    border: 'none',
+    fontSize: '13px',
+    fontWeight: '700',
+    cursor: 'pointer',
+    flexShrink: 0,
+    letterSpacing: '0.03em',
+  },
+  dropdown: {
+    position: 'absolute',
+    top: '48px',
+    right: 0,
+    backgroundColor: colors.cardBg,
+    border: `1px solid ${colors.cardBorder}`,
+    borderRadius: '10px',
+    padding: '8px 0',
+    minWidth: '160px',
+    boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
+    zIndex: 100,
+  },
+  dropdownName: {
+    color: colors.textMuted,
+    fontSize: '12px',
+    margin: 0,
+    padding: '4px 14px 8px',
+    fontWeight: '500',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  dropdownDivider: {
+    border: 'none',
+    borderTop: `1px solid ${colors.cardBorder}`,
+    margin: '0 0 4px',
+  },
+  dropdownItem: {
+    display: 'block',
+    width: '100%',
+    background: 'none',
+    border: 'none',
+    color: colors.textPrimary,
+    fontSize: '13px',
+    fontWeight: '500',
+    padding: '7px 14px',
+    textAlign: 'left',
     cursor: 'pointer',
   },
   main: {
