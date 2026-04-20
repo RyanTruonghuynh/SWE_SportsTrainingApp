@@ -86,6 +86,64 @@ const formatProgress = (progressDoc) => {
   };
 };
 
+const toDateKey = (date) => {
+  const parsedDate = new Date(date);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return null;
+  }
+
+  return parsedDate.toISOString().slice(0, 10);
+};
+
+const shiftDateKey = (dateKey, days) => {
+  const shiftedDate = new Date(`${dateKey}T00:00:00.000Z`);
+  shiftedDate.setUTCDate(shiftedDate.getUTCDate() + days);
+  return toDateKey(shiftedDate);
+};
+
+const calculateWorkoutStreak = async (userId) => {
+  const progressDocs = await Progress.find({ user: userId }).lean();
+  const workoutDateKeys = new Set();
+
+  for (const progress of progressDocs) {
+    for (const day of progress.days ?? []) {
+      for (const item of day.workoutItems ?? []) {
+        if (!item.completed) {
+          continue;
+        }
+
+        const completedDateKey = item.completedAt ? toDateKey(item.completedAt) : null;
+        if (completedDateKey) {
+          workoutDateKeys.add(completedDateKey);
+        }
+      }
+    }
+  }
+
+  if (workoutDateKeys.size === 0) {
+    return 0;
+  }
+
+  const todayKey = toDateKey(new Date());
+  const yesterdayKey = shiftDateKey(todayKey, -1);
+  const sortedWorkoutDateKeys = [...workoutDateKeys].sort();
+  const latestWorkoutDateKey = sortedWorkoutDateKeys[sortedWorkoutDateKeys.length - 1];
+
+  if (latestWorkoutDateKey !== todayKey && latestWorkoutDateKey !== yesterdayKey) {
+    return 0;
+  }
+
+  let streak = 0;
+  let cursorDateKey = latestWorkoutDateKey;
+
+  while (workoutDateKeys.has(cursorDateKey)) {
+    streak += 1;
+    cursorDateKey = shiftDateKey(cursorDateKey, -1);
+  }
+
+  return streak;
+};
+
 const ensureProgressForUser = async (userId) => {
   const user = await User.findById(userId).lean();
   if (!user) {
@@ -232,6 +290,7 @@ router.get("/dashboard/:userId", async (req, res) => {
     if (progressResult.error) {
       return res.status(progressResult.error.status).json(progressResult.error.body);
     }
+    const workoutStreak = await calculateWorkoutStreak(userId);
 
     res.json({
       user: {
@@ -241,7 +300,10 @@ router.get("/dashboard/:userId", async (req, res) => {
         questionaire: user.questionaire,
       },
       workoutPlan,
-      progress: formatProgress(progressResult.progress),
+      progress: {
+        ...formatProgress(progressResult.progress),
+        workoutStreak,
+      },
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

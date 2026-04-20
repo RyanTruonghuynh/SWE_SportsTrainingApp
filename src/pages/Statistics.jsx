@@ -95,7 +95,7 @@ function Statistics(){
     }
 
     const baseLevel = planData ? levelMap[planData.experienceLevel] ?? 1 : 0
-    const weeklyPlan = planData?.workoutPlan?.weeklyPlan ?? []
+    const workoutStreak = planData?.progress?.workoutStreak ?? 0
     const progressDays = planData?.progress?.days ?? []
     const exerciseList = progressDays.flatMap((day) =>
         (day.workoutItems ?? [])
@@ -168,8 +168,8 @@ function Statistics(){
                     </div>
                     <div style={styles.middleContainersColumn}>
                         <div style={styles.middleContainerCard}>
-                            <h3 style={styles.subContainerTitle}>Plan Days</h3>
-                            <p style={styles.middleContainerValue}>{weeklyPlan.length} Days</p>
+                            <h3 style={styles.subContainerTitle}>Streak</h3>
+                            <p style={styles.middleContainerValue}>{workoutStreak} Day{workoutStreak === 1 ? '' : 's'}</p>
                         </div>
 
                         <div style={styles.middleContainerCard}>
